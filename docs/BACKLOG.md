@@ -400,7 +400,8 @@ Deliver the baseline grounded-answer capability.
 
 ### BL-040 — Implement grounded RAG answer generation
 
-Status: TODO
+Status: DONE — retrieve, evaluate evidence, one grounded generation.
+Verified with mocked retrieval/model; no live Liara call has succeeded yet.
 
 Acceptance Criteria:
 - System prompt requires Persian beginner-friendly answers.
@@ -421,7 +422,8 @@ Dependencies:
 
 ### BL-041 — Implement source, evidence, clarification, and abstention behavior
 
-Status: TODO
+Status: DONE — sources come from retrieval metadata only; weak evidence
+clarifies or abstains. Relevance thresholds are starting values, not tuned.
 
 Acceptance Criteria:
 - Real source cards render under grounded answers.
@@ -439,7 +441,8 @@ Dependencies:
 
 ### BL-042 — Implement RAG/API failure behavior
 
-Status: TODO
+Status: DONE — retrieval, embedding, model, and empty-index failures all
+return safe Persian copy and never fall back to ungrounded answers.
 
 Acceptance Criteria:
 - Database failure is safe and user-facing.
@@ -465,7 +468,8 @@ Implement the highest-priority Golden Journey: Error → grounded next action.
 
 ### BL-050 — Implement the complete troubleshooting response flow
 
-Status: TODO
+Status: DONE — grounded troubleshooting with deterministic observation of
+pasted package.json / liara.json. All six eval categories covered at behavior level.
 
 Acceptance Criteria:
 - Pasted exact error strings are preserved.
@@ -489,7 +493,8 @@ Dependencies:
 
 ### BL-051 — Implement troubleshooting continuation and tests
 
-Status: TODO
+Status: DONE — journey and current step survive the troubleshooting branch;
+follow-up actions and prior context carry forward.
 
 Acceptance Criteria:
 - Actions such as `درست شد`, `هنوز خطا دارم`, and `لاگ جدید رو می‌فرستم` work.
@@ -515,7 +520,8 @@ Implement the second Golden Journey with deterministic planning and steps.
 
 ### BL-060 — Implement Build on Liara needs collection and service plan
 
-Status: TODO
+Status: DONE — deterministic service mapping, no model call. A service
+appears only when the user described a need for it.
 
 Acceptance Criteria:
 - Planning can determine:
@@ -540,7 +546,8 @@ Dependencies:
 
 ### BL-061 — Implement guided Next.js steps D01–D03
 
-Status: TODO
+Status: DONE — D01–D03 implemented as deterministic content. D04–D10 is
+BL-062 and the journey says so rather than inventing commands.
 
 Acceptance Criteria:
 - D01 confirms supported Next.js deployment intent.

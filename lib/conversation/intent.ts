@@ -1,3 +1,4 @@
+import { collectNeeds } from "./plan";
 import type { ConversationState, Intent } from "./types";
 
 /**
@@ -50,6 +51,10 @@ const PERSIAN_ERROR_TERMS = [
   "ریست می‌شه",
   "فیل شد",
   "شکست خورد",
+  "شکست می خوره",
+  "شکست میخوره",
+  "شکست خورده",
+  "بالا نمیاره",
   "اجرا نمی‌شه",
   "اجرا نمیشه",
   "دیپلوی نمی‌شه",
@@ -130,6 +135,27 @@ export function looksLikeResultReport(text: string): boolean {
   return containsAny(normalize(text), RESULT_TERMS);
 }
 
+/** Interrogative shape: a real question rather than an answer to our step. */
+const QUESTION_MARKERS = [
+  "?",
+  "؟",
+  "چیه",
+  "چیست",
+  "چطور",
+  "چگونه",
+  "چرا",
+  "آیا",
+  "کدوم",
+  "کدام",
+  "فرق",
+  "تفاوت",
+  "یعنی چی",
+];
+
+export function looksLikeSideQuestion(text: string): boolean {
+  return containsAny(normalize(text), QUESTION_MARKERS);
+}
+
 /**
  * Too short and signal-free to act on — "سلام", "کمک", "؟". Long free text is
  * treated as a general question instead, since asking for clarification there
@@ -154,14 +180,32 @@ export function detectIntent(message: string, state: ConversationState): Intent 
     if (looksLikeError(text)) return "troubleshooting";
     if (looksLikeResultReport(text)) return "deployment";
     if (looksLikeDeployment(text)) return "deployment";
-    // Anything else mid-journey is a side question, answered without leaving.
-    return "general";
+    // A question mid-journey is a side question, answered without leaving it.
+    if (looksLikeSideQuestion(text)) return "general";
+    // Otherwise the user is answering the current step. Defaulting to the
+    // journey keeps "بله، پروژه‌م Next.js هست" from being mistaken for a new
+    // topic and silently stalling progress.
+    return "deployment";
   }
 
   // Failure language beats deployment language: "موقع دیپلوی خطا خوردم" is a
   // troubleshooting request, not a request to start deploying.
   if (looksLikeError(text)) return "troubleshooting";
   if (looksLikeDeployment(text)) return "deployment";
+
+  // Describing a project and what it needs — "پروژه Next.js با postgres و
+  // آپلود فایل" — is a Build on Liara request even without the word "deploy".
+  // A question about those things is still a docs question, so ask first.
+  if (!looksLikeSideQuestion(text)) {
+    const needs = collectNeeds(text);
+    if (
+      needs.framework === "nextjs" &&
+      (needs.needsPostgres || needs.needsPersistentUploads)
+    ) {
+      return "deployment";
+    }
+  }
+
   if (isTooVagueToRoute(text)) return "unknown";
 
   return "general";

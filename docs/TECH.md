@@ -847,6 +847,16 @@ The actual semantic threshold must be determined empirically during `docs/EVALS.
 
 Do not invent a permanent threshold before evaluation.
 
+Implemented in `lib/rag/evidence.ts`. The current values are placeholders: one
+chunk suffices when a literal token matched, otherwise two. They are collected
+in one exported object so tuning against a live index is a single edit. Weak
+evidence clarifies when the query was underspecified and abstains otherwise —
+asking someone to rephrase a already-detailed question wastes their time.
+
+`buildChatResponse` takes retrieval and generation as injected dependencies, so
+the whole decision tree is testable without a database or a model, and the
+deterministic paths can be proven to make no AI call at all.
+
 ---
 
 # 18. RAG Answer Generation
