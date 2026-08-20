@@ -456,6 +456,15 @@ D09_TROUBLESHOOT_IF_NEEDED
 D10_DONE
 ```
 
+Journey advancement requires a recognizable completion signal, classified
+deterministically in `lib/conversation/result.ts` (success / failure /
+side-question / unknown). An unrecognised remark holds the current step. The
+earlier permissive rule — anything that was not a question advanced — silently
+skipped steps the user never performed.
+
+Resolving an error returns to the step that was interrupted rather than
+completing it, so a fixed error never marks a deployment that never ran as done.
+
 ## 9.2 Normal Step Behavior
 
 For a normal guided step:

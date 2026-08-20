@@ -5,13 +5,14 @@ import type { RetrievalResult } from "@/lib/rag/retrieve";
 import { lacksErrorEvidence, observe, type Observation } from "./diagnose";
 import { classifyError, failure, failureLog } from "./failures";
 import {
+  HOLDING_MESSAGE,
   journeyStepView,
-  PENDING_STEPS_MESSAGE,
   UNSUPPORTED_FRAMEWORK_ACTIONS,
   UNSUPPORTED_FRAMEWORK_MESSAGE,
 } from "./journey";
+import { classifyTurn, extractAppId } from "./result";
 import { collectNeeds, mergeNeeds, type ProjectNeeds, servicesFor } from "./plan";
-import { detectIntent, looksLikeResultReport } from "./intent";
+import { detectIntent } from "./intent";
 import {
   advanceJourney,
   enterErrorBranch,
@@ -185,31 +186,51 @@ function handleDeployment(
   let state = enterJourney(incoming, "nextjs-deploy");
   state = { ...state, requiredServices: servicesFor(needs) };
 
-  // The turn that starts the journey renders its first step. Every later turn
-  // is the user answering the step in front of them, so it advances.
+  // Remember an app id the moment it appears, so D08 can show a real command.
+  const appId = extractAppId(message) ?? state.appId;
+  if (appId !== state.appId) state = { ...state, appId };
+
+  // The turn that starts the journey renders its first step. After that, only a
+  // recognizable completion advances. An unrecognised remark holds position —
+  // silently skipping a step the user never performed is the worse failure.
+  let held = false;
+
   if (alreadyInJourney) {
-    if (looksLikeResultReport(message)) {
+    const result = classifyTurn(message, incoming.currentStep);
+
+    if (result === "success" && incoming.activeError) {
+      // "درست شد" while an error is open means the error is fixed, not that the
+      // step succeeded. Clear the branch and let them retry the same step —
+      // treating it as completion would mark a deployment done that never ran.
       state = recordUserResult(state, message.slice(0, 2_000));
+      state = resolveErrorBranch(state);
+      held = true;
+    } else if (result === "success") {
+      state = recordUserResult(state, message.slice(0, 2_000));
+      state = resolveErrorBranch(state);
+      state = advanceJourney(state);
+    } else {
+      held = true;
     }
-    // Returning to the journey clears any troubleshooting branch it was in.
-    state = resolveErrorBranch(state);
-    state = advanceJourney(state);
   }
 
-  const view = state.currentStep ? journeyStepView(state.currentStep, needs) : null;
+  const view = state.currentStep
+    ? journeyStepView(state.currentStep, needs, state.appId)
+    : null;
 
   if (!view) {
     return {
-      message: PENDING_STEPS_MESSAGE,
+      message: HOLDING_MESSAGE,
       state,
       meta: { intent: "deployment", requestId },
     };
   }
 
+  // Held turns repeat the step's actions without re-reading the whole step.
   return {
-    message: view.body,
+    message: held ? HOLDING_MESSAGE : view.body,
     state,
-    plan: view.plan,
+    plan: held ? undefined : view.plan,
     actions: view.actions,
     meta: { intent: "deployment", requestId },
   };

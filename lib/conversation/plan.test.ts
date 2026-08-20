@@ -110,7 +110,7 @@ describe("BL-060/061 — planning through the conversation", () => {
 
   it("D02 — moves to readiness once Next.js is confirmed", async () => {
     const started = await send("می‌خوام پروژه‌م رو آنلاین کنم.");
-    const confirmed = await send("بله، پروژه‌م Next.js هست.", started.state);
+    const confirmed = await send("بله، پروژه‌م Next.js هست. انجام شد.", started.state);
 
     expect(confirmed.state.currentStep).toBe("D02_CHECK_READINESS");
     expect(confirmed.message).toMatch(/package\.json/);
@@ -119,8 +119,8 @@ describe("BL-060/061 — planning through the conversation", () => {
 
   it("D03 — shows the plan card after readiness", async () => {
     const started = await send("می‌خوام پروژه‌م رو آنلاین کنم.");
-    const confirmed = await send("بله، پروژه‌م Next.js هست.", started.state);
-    const planned = await send("توی package.json هم build و هم start رو دارم.", confirmed.state);
+    const confirmed = await send("بله، پروژه‌م Next.js هست. انجام شد.", started.state);
+    const planned = await send("هم build و هم start رو دارم. انجام شد.", confirmed.state);
 
     expect(planned.state.currentStep).toBe("D03_BUILD_PLAN");
     expect(planned.plan?.services.map((s) => s.service)).toEqual(["paas-nextjs"]);
@@ -129,7 +129,7 @@ describe("BL-060/061 — planning through the conversation", () => {
 
   it("reflects an added database need in the plan and state", async () => {
     const started = await send("می‌خوام پروژه Next.js رو آنلاین کنم.");
-    const confirmed = await send("بله، پروژه‌م Next.js هست.", started.state);
+    const confirmed = await send("بله، پروژه‌م Next.js هست. انجام شد.", started.state);
     const planned = await send("پروژه‌م دیتابیس postgres هم لازم داره.", confirmed.state);
 
     expect(planned.state.requiredServices).toContain("postgresql");
@@ -144,7 +144,7 @@ describe("BL-060/061 — planning through the conversation", () => {
     expect(response.actions?.map((a) => a.id)).toContain("ask-general");
   });
 
-  it("stops honestly at the end of the implemented steps", async () => {
+  it("moves into the CLI step after the plan is accepted", async () => {
     const state: ConversationState = {
       ...createInitialState(),
       activeJourney: "nextjs-deploy",
@@ -153,7 +153,7 @@ describe("BL-060/061 — planning through the conversation", () => {
       completedSteps: ["D01_CONFIRM_PROJECT", "D02_CHECK_READINESS"],
     };
 
-    const response = await send("قدم‌به‌قدم شروع کنیم.", state);
-    expect(response.message).toMatch(/هنوز|اضافه نشده/);
+    const response = await send("قدم‌به‌قدم شروع کنیم. انجام شد.", state);
+    expect(response.state.currentStep).toBe("D04_ENSURE_CLI");
   });
 });

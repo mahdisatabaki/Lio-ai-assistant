@@ -44,6 +44,21 @@ export function getPool(): Pool {
   return pool;
 }
 
+/**
+ * Whether a database is configured at all.
+ *
+ * Lives here so the secret is read only inside the server boundary; callers
+ * learn configured-or-not without touching `process.env` themselves.
+ */
+export function isDatabaseConfigured(): boolean {
+  return Boolean(process.env.DATABASE_URL?.trim());
+}
+
+/** Cheap round trip for health checks. Throws if the database is unreachable. */
+export async function pingDatabase(): Promise<void> {
+  await getPool().query("SELECT 1");
+}
+
 export async function closePool(): Promise<void> {
   const holder = globalThis as PoolHolder;
   const pool = holder[POOL_KEY];

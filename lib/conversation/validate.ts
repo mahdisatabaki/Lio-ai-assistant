@@ -104,6 +104,7 @@ function sanitizeState(value: unknown): ConversationState {
     requiredServices,
     // A step only means something inside a journey.
     currentStep: activeJourney ? currentStep : null,
+    appId: boundedString(value.appId, 64),
     completedSteps: Array.from(new Set(completedSteps)),
     lastUserResult: boundedString(value.lastUserResult, MAX_STORED_TEXT_CHARS),
     activeError: boundedString(value.activeError, MAX_STORED_TEXT_CHARS),
@@ -129,7 +130,7 @@ export function parseChatRequest(payload: unknown): ValidationResult {
   if (message.length > config.maxMessageChars) {
     return fail(
       "message_too_long",
-      `متن ارسالی خیلی طولانیه. لطفاً فقط بخش مهم رو بفرست (حداکثر ${config.maxMessageChars.toLocaleString("fa-IR")} کاراکتر).`,
+      "لاگ خیلی طولانیه. بخش مربوط به خطا و چند خط قبل و بعدش رو بفرست.",
     );
   }
 

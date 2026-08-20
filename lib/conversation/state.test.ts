@@ -62,7 +62,9 @@ describe("journey state", () => {
 
     expect(state.currentStep).toBeNull();
     expect(state.activeJourney).toBeNull();
-    expect(state.completedSteps).toHaveLength(JOURNEY_STEP_IDS.length);
+    // D09 is the troubleshooting branch, stepped over by a normal advance.
+    expect(state.completedSteps).toHaveLength(JOURNEY_STEP_IDS.length - 1);
+    expect(state.completedSteps).not.toContain("D09_TROUBLESHOOT_IF_NEEDED");
   });
 
   it("completeJourney clears the active error", () => {

@@ -71,6 +71,8 @@ export type ConversationState = {
   deploymentMethod: DeploymentMethod | null;
   requiredServices: RequiredService[];
   currentStep: JourneyStepId | null;
+  /** Liara application id, once the user tells us. Used by the deploy command. */
+  appId: string | null;
   completedSteps: JourneyStepId[];
   lastUserResult: string | null;
   activeError: string | null;

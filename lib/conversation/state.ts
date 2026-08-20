@@ -24,6 +24,7 @@ export function createInitialState(): ConversationState {
     deploymentMethod: null,
     requiredServices: [],
     currentStep: null,
+    appId: null,
     completedSteps: [],
     lastUserResult: null,
     activeError: null,
@@ -34,7 +35,10 @@ export function createInitialState(): ConversationState {
 export function nextStepAfter(step: JourneyStepId): JourneyStepId | null {
   const index = JOURNEY_STEP_IDS.indexOf(step);
   if (index < 0 || index >= JOURNEY_STEP_IDS.length - 1) return null;
-  return JOURNEY_STEP_IDS[index + 1];
+  const next = JOURNEY_STEP_IDS[index + 1];
+  // D09 is the troubleshooting branch, entered by an error rather than walked
+  // through in order, so a normal advance steps over it to completion.
+  return next === "D09_TROUBLESHOOT_IF_NEEDED" ? "D10_DONE" : next;
 }
 
 /**

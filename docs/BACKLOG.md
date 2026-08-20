@@ -565,7 +565,10 @@ Dependencies:
 
 ### BL-062 — Implement guided Next.js steps D04–D08
 
-Status: TODO
+Status: DONE — D04–D08 implemented from the current official Liara docs
+(npm install -g @liara/cli, liara login, liara network create, liara create,
+liara deploy --app=<id> --platform=next). Advancement now requires a recognizable
+completion signal; an unrecognised remark holds the step.
 
 Acceptance Criteria:
 - Current official Liara CLI/Next.js docs are re-verified immediately before implementation.
@@ -584,7 +587,8 @@ Dependencies:
 
 ### BL-063 — Implement deployment troubleshooting and side-question branches
 
-Status: TODO
+Status: DONE — errors and side questions preserve journey, step, and app id.
+Resolving an error returns to the same step rather than completing it.
 
 Acceptance Criteria:
 - Deployment error preserves original step.
@@ -602,7 +606,8 @@ Dependencies:
 
 ### BL-064 — Implement guided completion and unsupported-framework fallback
 
-Status: TODO
+Status: DONE — D10 requires explicit success or clearly successful output.
+Unsupported frameworks stay outside the journey with grounded Q&A still offered.
 
 Acceptance Criteria:
 - Explicit user success can complete the journey.
@@ -627,7 +632,8 @@ Harden the completed MVP without introducing enterprise infrastructure.
 
 ### BL-070 — Add request limits, rate limiting, and content hardening
 
-Status: TODO
+Status: DONE — bounded input, in-memory per-IP limiter returning 429 with
+Retry-After, and no shell/HTML execution anywhere in the render path.
 
 Acceptance Criteria:
 - User-message length is bounded from centralized config.
@@ -647,7 +653,8 @@ Dependencies:
 
 ### BL-071 — Add structured logging and final health checks
 
-Status: TODO
+Status: DONE — structured JSON logs with a forbidden-field filter, and a
+health endpoint that reports database state without making a paid AI call.
 
 Acceptance Criteria:
 - Each `/api/chat` request has a request ID.
@@ -667,7 +674,9 @@ Dependencies:
 
 ### BL-072 — Verify the approved cost/call budget
 
-Status: TODO
+Status: DONE — call budget enforced by tests: 0 AI calls for guided steps,
+planning, ambiguous errors, and unsupported frameworks; exactly 1 retrieval +
+1 generation for Q&A and troubleshooting.
 
 Acceptance Criteria:
 - Normal guided step uses zero LLM/embedding calls.
