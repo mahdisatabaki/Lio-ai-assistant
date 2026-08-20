@@ -1190,6 +1190,10 @@ Use it as supporting evidence for:
 
 Do not call the paid AI API from every health check.
 
+This arrives in two steps. BL-002 implements the process-liveness half, which
+returns `{"status":"ok"}` and touches no dependency. The database check is added
+by BL-071, once there is a database to check.
+
 ---
 
 # 28. Cost Controls

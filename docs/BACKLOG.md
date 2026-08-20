@@ -88,7 +88,9 @@ Dependencies:
 
 ### BL-002 — Add initial health endpoint and early Liara deployability
 
-Status: TODO
+Status: IN PROGRESS — endpoint and deployment configuration are done and
+verified locally. The two criteria that require a live Liara deployment are
+still open: the Liara API was unreachable from the development machine.
 
 Acceptance Criteria:
 - `GET /api/health` exists.

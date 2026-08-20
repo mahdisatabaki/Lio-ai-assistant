@@ -42,6 +42,24 @@ The application runs at `http://localhost:3000`.
 Copy `.env.example` to `.env.local` and fill in the values. All variables are
 server-only; none are exposed to the browser.
 
+## Health check
+
+`GET /api/health` returns `{"status":"ok"}` when the application process is
+serving requests. It calls no AI model and touches no database, so it is free to
+poll.
+
+## Deploying to Liara
+
+The application targets Liara PaaS. `liara.json` sets the `next` platform and
+`.liaraignore` keeps `node_modules`, build output, and local secrets out of the
+upload. Liara installs dependencies and runs `build`, then `start`.
+
+```bash
+liara deploy --app=<app-id> --platform=next
+```
+
+The full production runbook is BL-080.
+
 ## Documentation
 
 | Document                                | Contents                             |

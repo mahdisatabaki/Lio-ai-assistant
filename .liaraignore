@@ -1,0 +1,11 @@
+# Files that should not be uploaded to Liara.
+# Liara installs dependencies and runs the `build` script itself.
+
+node_modules
+.next
+.git
+
+# Local secrets must never leave the machine.
+.env
+.env.*
+!.env.example
