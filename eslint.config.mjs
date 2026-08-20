@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored Claude Code skill assets. These are upstream reference snippets
+    // rather than application source, and editing them to satisfy our rules
+    // would only diverge them from the registry they are copied from.
+    ".claude/**",
   ]),
 ]);
 
