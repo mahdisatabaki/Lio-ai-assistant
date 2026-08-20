@@ -214,7 +214,7 @@ Current stack:
 - Tailwind CSS v4 + shadcn/ui with RTL mode enabled
 - Next.js Route Handlers for backend endpoints
 - Liara AI API for chat completions and embeddings
-- `openai` JavaScript client configured for Liara's OpenAI-compatible API
+- Vercel AI SDK (`ai`, `@ai-sdk/react`) as the AI client layer, reaching Liara through its OpenAI-compatible provider
 - Liara PostgreSQL DBaaS
 - pgvector extension
 - `pg` Node PostgreSQL client

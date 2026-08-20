@@ -132,7 +132,7 @@ Implement the frozen two-screen UX with local/mock behavior only.
 
 ### BL-010 — Implement Home + base Conversation UI
 
-Status: TODO
+Status: DONE
 
 Acceptance Criteria:
 - UI is Persian and RTL-first.
@@ -153,7 +153,7 @@ Dependencies:
 
 ### BL-011 — Implement technical and structured response UI
 
-Status: TODO
+Status: DONE
 
 Acceptance Criteria:
 - Code/commands/logs are LTR and monospace inside RTL UI.
@@ -173,7 +173,7 @@ Dependencies:
 
 ### BL-012 — Implement loading, retry, failure, and responsive states
 
-Status: TODO
+Status: DONE
 
 Acceptance Criteria:
 - Calm assistant loading state exists.
@@ -201,7 +201,7 @@ Build the non-AI product engine before introducing RAG.
 
 ### BL-020 — Define and validate the conversation contract
 
-Status: TODO
+Status: DONE
 
 Acceptance Criteria:
 - Types exist for messages, intent, conversation state, sources, actions, API request, and API response.
@@ -219,7 +219,7 @@ Dependencies:
 
 ### BL-021 — Implement deterministic intent and state logic
 
-Status: TODO
+Status: DONE
 
 Acceptance Criteria:
 - Obvious error/log input routes to troubleshooting.
@@ -238,7 +238,7 @@ Dependencies:
 
 ### BL-022 — Implement `/api/chat` skeleton and connect the UI
 
-Status: TODO
+Status: DONE
 
 Acceptance Criteria:
 - `POST /api/chat` exists.

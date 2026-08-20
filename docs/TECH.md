@@ -75,18 +75,29 @@ Do not upgrade framework versions during the challenge without a concrete reason
 
 ## 2.2 AI Client
 
-Use the official **OpenAI-compatible JavaScript client approach** against Liara AI API.
+Use the **Vercel AI SDK** as the application-level AI abstraction.
 
-Preferred dependency:
+Dependencies:
 
-- `openai`
+- `ai`
+- `@ai-sdk/react`
+- `@ai-sdk/openai-compatible` — added when the Liara provider is wired up (BL-030)
 
-Reason:
+Liara is reached through the AI SDK's OpenAI-compatible provider, pointed at
+`LIARA_AI_BASE_URL`. This keeps the original reasoning intact — Liara exposes
+OpenAI-compatible chat and embedding behavior, and no orchestration framework is
+involved — while giving the conversation UI a client layer it would otherwise
+need hand-written.
 
-- Liara exposes OpenAI-compatible chat/model behavior.
-- The MVP does not need an AI orchestration framework.
-- We do not need tool calling for MVP.
-- The initial product does not require response streaming.
+Reason for choosing it over the standalone `openai` client:
+
+- `ai` and `@ai-sdk/react` are already installed and in use.
+- `@ai-sdk/react` covers the conversation UI directly.
+- It speaks OpenAI-compatible endpoints, so nothing about the Liara integration changes.
+- Maintaining both this and a separate `openai` client would duplicate the same job.
+
+The AI SDK is used as a client library, not as an agent framework. Its agent,
+workflow, and multi-step tool-loop features stay out of the MVP.
 
 Do not add:
 
@@ -98,15 +109,11 @@ Do not add:
 
 unless a later approved requirement proves they are necessary.
 
-### Status after BL-001
+### Status
 
-The repository contained **no** Vercel AI SDK installation. `ai` and `@ai-sdk/*`
-are absent from `package.json`, from the lockfile, and from all source files, so
-there was no partial setup to complete or remove.
-
-No AI client is installed yet. Installing one before any code calls it would be
-speculative, so the choice above stands unchanged and the dependency is added by
-**BL-030**, which is the backlog item that configures the Liara AI client.
+`ai` and `@ai-sdk/react` are installed and used by the conversation UI. The
+Liara provider (`@ai-sdk/openai-compatible`) and any real model call belong to
+**BL-030**; nothing in the codebase calls a model yet.
 
 ## 2.3 Database
 
@@ -1578,6 +1585,31 @@ Frontend and backend are coupled.
 
 Revisit when:
 A backend requirement cannot be supported cleanly within the Next.js application.
+
+---
+
+## Decision: Vercel AI SDK as the AI client layer
+
+Context:
+The repository already carried `ai` and `@ai-sdk/react` before the AI batch
+began, while this document specified the standalone `openai` client.
+
+Decision:
+Adopt the Vercel AI SDK, reaching Liara through its OpenAI-compatible provider.
+Drop the separate `openai` client baseline.
+
+Reason:
+It is already installed, `@ai-sdk/react` serves the conversation UI, and it
+speaks the same OpenAI-compatible API Liara exposes. Keeping both would mean
+maintaining two clients for one job.
+
+Tradeoff:
+A larger dependency than `openai`, and its agent/workflow surface must be left
+unused on purpose so the MVP does not drift toward an agent framework.
+
+Revisit when:
+The AI SDK blocks a required Liara behavior, or its provider layer cannot be
+pointed at Liara cleanly.
 
 ---
 
