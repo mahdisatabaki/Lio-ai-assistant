@@ -266,7 +266,8 @@ Build reliable Liara documentation retrieval before AI answer generation.
 
 ### BL-030 — Configure Liara AI + PostgreSQL development resources and clients
 
-Status: TODO
+Status: DONE — clients implemented. Live Liara AI and PostgreSQL
+connectivity is unverified; the VPN exit IP is refused by Liara (see BL-002).
 
 Acceptance Criteria:
 - Development Liara PostgreSQL DBaaS is available.
@@ -286,7 +287,8 @@ Dependencies:
 
 ### BL-031 — Add the knowledge-index migration
 
-Status: TODO
+Status: DONE — migration resolves the embedding dimension from the
+configured model at apply time. Not yet applied to a live database.
 
 Acceptance Criteria:
 - Migration enables/verifies pgvector.
@@ -302,7 +304,8 @@ Dependencies:
 
 ### BL-032 — Implement Liara docs acquisition and semantic chunking
 
-Status: TODO
+Status: DONE — verified against the real corpus: 1143 files, 5441
+chunks, 0 failures.
 
 Acceptance Criteria:
 - `npm run docs:index` acquires/reads official `liara-cloud/docs`.
@@ -321,7 +324,8 @@ Dependencies:
 
 ### BL-033 — Implement incremental embedding and index synchronization
 
-Status: TODO
+Status: DONE — plan/apply logic unit-tested. Not yet run against a live
+database or embedding API.
 
 Acceptance Criteria:
 - Content hashes identify unchanged chunks.
@@ -340,7 +344,8 @@ Dependencies:
 
 ### BL-034 — Implement semantic + exact-token retrieval
 
-Status: TODO
+Status: DONE — both arms and the fusion implemented. Semantic retrieval
+is unverified end to end without a live index.
 
 Acceptance Criteria:
 - Semantic query uses one query embedding and pgvector similarity.
@@ -360,7 +365,8 @@ Dependencies:
 
 ### BL-035 — Add retrieval integration tests
 
-Status: TODO
+Status: DONE — token extraction, fusion, chunking, and sync covered.
+Seeded PostgreSQL integration test deferred until a database is reachable.
 
 Acceptance Criteria:
 - Tests cover semantic retrieval.

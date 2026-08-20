@@ -43,9 +43,16 @@ describe("secret boundary", () => {
     expect(files.some(isServerOnly)).toBe(true);
   });
 
+  // Matches an actual read — process.env.X, process.env["X"], env.X — rather
+  // than any mention of the name, so documentation and token examples that
+  // merely spell a variable out do not register as leaks.
+  const readPattern = (variable: string) =>
+    new RegExp(`process\\.env\\s*(?:\\.\\s*${variable}\\b|\\[\\s*["'\`]${variable}["'\`]\\s*\\])`);
+
   it.each(SECRET_VARS)("reads %s only inside lib/server", (variable) => {
+    const pattern = readPattern(variable);
     const offenders = files.filter(
-      (path) => !isServerOnly(path) && readFileSync(path, "utf8").includes(variable),
+      (path) => !isServerOnly(path) && pattern.test(readFileSync(path, "utf8")),
     );
 
     expect(offenders).toEqual([]);

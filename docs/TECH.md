@@ -111,9 +111,16 @@ unless a later approved requirement proves they are necessary.
 
 ### Status
 
-`ai` and `@ai-sdk/react` are installed and used by the conversation UI. The
-Liara provider (`@ai-sdk/openai-compatible`) and any real model call belong to
-**BL-030**; nothing in the codebase calls a model yet.
+`ai`, `@ai-sdk/react`, and `@ai-sdk/openai-compatible` are installed.
+`lib/server/ai.ts` builds the Liara provider from `LIARA_AI_BASE_URL` and
+`LIARA_AI_API_KEY` and exposes `chatModel()` and `embeddingModel()`, both named
+only from configuration.
+
+Nothing calls a chat model yet — answer generation is BL-040. Embeddings are
+called by the indexer and by query-time retrieval.
+
+**Not yet verified against live Liara AI.** The development machine's VPN exit
+IP is refused by Liara, so no request has reached the API. See BL-002.
 
 ## 2.3 Database
 
@@ -698,6 +705,14 @@ The embedding dimension must be taken from the selected embedding model.
 
 Do not hardcode an incorrect dimension before the actual model is verified.
 
+Implemented as `db/migrations/001_knowledge_index.sql` with an
+`{{EMBEDDING_DIMENSIONS}}` placeholder. `npm run db:migrate` substitutes it,
+resolving the width by embedding one probe string against the configured model,
+or from `LIARA_EMBEDDING_DIMENSIONS` when set. pgvector fixes a column's
+dimension at creation time, so a guessed value would only surface as a failure
+after the first insert. No migration framework: one idempotent SQL file and a
+short script are enough at this size.
+
 ## 14.1 Why One Table
 
 The MVP does not need a normalized CMS-like document model.
@@ -782,10 +797,17 @@ Do not build a full search engine for this.
 
 Merge semantic and exact-token candidates using simple deterministic ranking.
 
-Preferred initial method:
+Implemented as Reciprocal Rank Fusion in `lib/rag/merge.ts` with K = 60. RRF
+fuses by rank rather than score, which matters because cosine similarity and
+substring-match counts are not comparable numbers; normalising them into one
+scale would be invented weighting. A chunk found by both arms therefore
+outranks one found by either alone. Ties break by best arm rank, then row id,
+so repeated queries return a stable order.
 
-- Reciprocal Rank Fusion (RRF), or
-- an equivalently small deterministic merge.
+The lexical arm weights *where* a token matched — title 3, heading 2, content 1
+— rather than counting matches flatly. Liara's docs put `## فایل liara.json` on
+every platform page, and flat counting ranked an unrelated page above the
+Next.js one; weighting fixed it without adding a search engine.
 
 Deduplicate by source URL + heading.
 
