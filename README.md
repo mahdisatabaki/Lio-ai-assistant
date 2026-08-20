@@ -60,6 +60,27 @@ liara deploy --app=<app-id> --platform=next
 
 The full production runbook is BL-080.
 
+### Liara connectivity behind a VPN
+
+Liara refuses connections from foreign VPN exit IPs. On a machine with a
+full-tunnel VPN, `liara` commands and `console.liara.ir` hang and time out even
+though DNS resolves and the TCP port appears open, because the tunnel accepts
+the connection locally before failing to proxy it.
+
+Liara's services sit in two Iranian netblocks: `185.208.181.0/24` (console, API,
+docs) and `62.60.220.0/24` (deployed `*.liara.run` apps). Routing just those
+outside the tunnel fixes it while leaving the VPN up for everything else. From
+an **elevated** PowerShell, with `<gateway>` and `<ifIndex>` taken from
+`Get-NetRoute -DestinationPrefix 0.0.0.0/0` for the physical adapter:
+
+```powershell
+New-NetRoute -DestinationPrefix 185.208.181.0/24 -InterfaceIndex <ifIndex> -NextHop <gateway> -RouteMetric 1
+```
+
+Repeat for `62.60.220.0/24`. Verify with `curl https://console.liara.ir` — it
+should return 200 in under a second. These are DNS-resolved addresses rather
+than published infrastructure, so re-check them if Liara moves hosts.
+
 ## Documentation
 
 | Document                                | Contents                             |

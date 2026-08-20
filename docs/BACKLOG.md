@@ -90,7 +90,9 @@ Dependencies:
 
 Status: IN PROGRESS — endpoint and deployment configuration are done and
 verified locally. The two criteria that require a live Liara deployment are
-still open: the Liara API was unreachable from the development machine.
+still open. Liara refuses the development machine's VPN exit IP; reaching it
+needs a split-tunnel route that this session lacked the privileges to add.
+See "Liara connectivity" in `README.md`.
 
 Acceptance Criteria:
 - `GET /api/health` exists.
@@ -107,7 +109,7 @@ Dependencies:
 
 ### BL-003 — Enforce server/client configuration boundaries
 
-Status: TODO
+Status: DONE
 
 Acceptance Criteria:
 - `LIARA_AI_API_KEY` and `DATABASE_URL` cannot leak into client code.

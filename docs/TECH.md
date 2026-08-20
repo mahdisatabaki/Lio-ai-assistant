@@ -1472,6 +1472,14 @@ Do not create a large environment-variable surface.
 
 Use sensible application defaults for non-secret tuning values.
 
+BL-003 implements this split. The five required variables above are read through
+`lib/server/env.ts`, which carries the `server-only` marker and validates lazily,
+naming every missing variable without ever printing a value. The optional tuning
+values are plain constants in `lib/config.ts` rather than environment variables:
+Next.js inlines only `NEXT_PUBLIC_` names into client JavaScript, so a limit read
+from `process.env` would silently fall back to its default in the browser while
+working correctly on the server.
+
 ---
 
 # 35. Technical Decisions
