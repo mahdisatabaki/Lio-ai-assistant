@@ -144,31 +144,34 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the production runbook.
 
 ## Live deployment
 
-Deployed to Liara PaaS as **`liara-assistant`**:
+Deployed to Liara PaaS under the team **لیارا** as **`liara-ai-assistant`**:
 
 ```text
-https://liara-assistant.liara.run
+https://liara-ai-assistant.liara.run
 ```
 
-Status: the application is built, released, and running (Next.js reports ready in
-its production logs). Grounded answers are not live yet — the PostgreSQL DBaaS
-that holds the knowledge index has not been provisioned, so the assistant
-correctly reports it cannot reach its sources instead of answering ungrounded.
+Deployment configuration is pinned to the team in `liara.json` (`team-id` plus
+the team app id), so a stray `liara deploy` cannot land in a personal account.
+
+Status: the application is built, released, and running — its production logs
+show Next.js ready and serving. Grounded answers are not live yet: the team has
+no credit, so the PostgreSQL DBaaS holding the knowledge index could not be
+provisioned. Without it the assistant correctly reports that it cannot reach its
+sources instead of answering ungrounded.
 
 ### Liara connectivity behind a VPN
 
-Liara refuses foreign VPN exit IPs. Liara's services live in `185.208.181.0/24`
-(console, API, docs, and deployed apps) and `62.60.220.0/24`; routing those two
-prefixes out the physical Iranian interface fixes it while leaving the VPN up for
-everything else. From an **elevated** PowerShell, with `<gateway>` and
-`<ifIndex>` taken from `Get-NetRoute -DestinationPrefix 0.0.0.0/0` for the
-physical adapter:
+Liara refuses foreign VPN exit IPs. Its services span several Iranian netblocks —
+`185.208.181.0/24` (console, API, docs), `185.142.159.0/24` and `62.60.220.0/24`
+(deployed apps) — and routing those out the physical interface fixes access while
+leaving the VPN up for everything else. From an **elevated** PowerShell, with
+`<gateway>`/`<ifIndex>` from `Get-NetRoute -DestinationPrefix 0.0.0.0/0`:
 
 ```powershell
-New-NetRoute -DestinationPrefix 185.208.181.0/24 -InterfaceIndex <ifIndex> -NextHop <gateway> -RouteMetric 1
+New-NetRoute -DestinationPrefix 185.142.159.0/24 -InterfaceIndex <ifIndex> -NextHop <gateway> -RouteMetric 1
 ```
 
-Re-check these after changing Wi-Fi networks: the routes pin a gateway, so a new
+Re-check them after changing Wi-Fi networks: the routes pin a gateway, so a new
 network silently blackholes them while host-specific `/32` routes keep working.
 
 ## Demo

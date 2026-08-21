@@ -1,5 +1,6 @@
 {
-  "app": "liara-assistant",
+  "team-id": "6a86c0a2fbcb9407789be603",
+  "app": "liara-ai-assistant",
   "platform": "next",
   "next": {
     "mirror": false

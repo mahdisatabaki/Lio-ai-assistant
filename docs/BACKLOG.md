@@ -88,12 +88,11 @@ Dependencies:
 
 ### BL-002 — Add initial health endpoint and early Liara deployability
 
-Status: IN PROGRESS — the application is built, released, and running on Liara
-PaaS as `liara-assistant` (its logs show Next.js ready and serving). The two
-criteria that require reaching the public URL are still unverified: a stale
-split-tunnel route on the development machine blackholes the app's IP, so `/`
-and `/api/health` cannot be checked from here. See "Liara connectivity" in
-`README.md`.
+Status: IN PROGRESS — deployed to the team PaaS app `liara-ai-assistant`
+(team لیارا) and running; its logs show Next.js ready. The two criteria needing
+the public URL are unverified: the app's netblock (185.142.159.0/24) has no
+split-tunnel route on the development machine, and adding one needs
+Administrator rights. See "Liara connectivity" in `README.md`.
 
 Acceptance Criteria:
 - `GET /api/health` exists.
@@ -724,11 +723,11 @@ Dependencies:
 
 ### BL-081 — Build the production knowledge index and deploy the complete MVP
 
-Status: BLOCKED (external) — every local half is done: migration, indexer,
-and deploy config are implemented and dry-run verified against the real corpus
-(1143 files, 5441 chunks, 0 failures). Production PostgreSQL, the live index,
-and the PaaS deployment need network access to Liara, which this machine's VPN
-exit IP is refused for. See BL-002.
+Status: BLOCKED (external) — the team PaaS app exists and the application is
+deployed to it. PostgreSQL could not be provisioned: team لیارا reports
+remainingFreeCredit 0 and hasSucceedPayment false, and `liara db create` fails
+with Liara's balance error in both team and personal scope while app creation
+succeeds. No database means no migration, no index, and no live retrieval.
 
 Acceptance Criteria:
 - Production migration succeeds.
