@@ -120,6 +120,18 @@ liara deploy --app=<app-id> --platform=next
 `node_modules`, build output, and local env files out of the upload. Liara runs
 `npm install` and the `build` script, then `start`.
 
+**The npm mirror is disabled in `liara.json`.** The first real deployment failed
+during `npm ci` on Liara's builder with `npm error Exit handler never called!`
+while installing through the Liara mirror. Adding the documented opt-out fixed it
+and the next deploy succeeded unchanged:
+
+```json
+{ "next": { "mirror": false } }
+```
+
+This is the same failure mode the assistant's own T-02 eval covers, and the same
+documented fix it recommends.
+
 ### 9. Verify the root page
 
 ```bash

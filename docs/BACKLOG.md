@@ -88,11 +88,12 @@ Dependencies:
 
 ### BL-002 — Add initial health endpoint and early Liara deployability
 
-Status: IN PROGRESS — endpoint and deployment configuration are done and
-verified locally. The two criteria that require a live Liara deployment are
-still open. Liara refuses the development machine's VPN exit IP; reaching it
-needs a split-tunnel route that this session lacked the privileges to add.
-See "Liara connectivity" in `README.md`.
+Status: IN PROGRESS — the application is built, released, and running on Liara
+PaaS as `liara-assistant` (its logs show Next.js ready and serving). The two
+criteria that require reaching the public URL are still unverified: a stale
+split-tunnel route on the development machine blackholes the app's IP, so `/`
+and `/api/health` cannot be checked from here. See "Liara connectivity" in
+`README.md`.
 
 Acceptance Criteria:
 - `GET /api/health` exists.

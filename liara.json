@@ -1,3 +1,7 @@
 {
-  "platform": "next"
+  "app": "liara-assistant",
+  "platform": "next",
+  "next": {
+    "mirror": false
+  }
 }

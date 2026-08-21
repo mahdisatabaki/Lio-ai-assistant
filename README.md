@@ -142,6 +142,35 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the production runbook.
 
 ---
 
+## Live deployment
+
+Deployed to Liara PaaS as **`liara-assistant`**:
+
+```text
+https://liara-assistant.liara.run
+```
+
+Status: the application is built, released, and running (Next.js reports ready in
+its production logs). Grounded answers are not live yet — the PostgreSQL DBaaS
+that holds the knowledge index has not been provisioned, so the assistant
+correctly reports it cannot reach its sources instead of answering ungrounded.
+
+### Liara connectivity behind a VPN
+
+Liara refuses foreign VPN exit IPs. Liara's services live in `185.208.181.0/24`
+(console, API, docs, and deployed apps) and `62.60.220.0/24`; routing those two
+prefixes out the physical Iranian interface fixes it while leaving the VPN up for
+everything else. From an **elevated** PowerShell, with `<gateway>` and
+`<ifIndex>` taken from `Get-NetRoute -DestinationPrefix 0.0.0.0/0` for the
+physical adapter:
+
+```powershell
+New-NetRoute -DestinationPrefix 185.208.181.0/24 -InterfaceIndex <ifIndex> -NextHop <gateway> -RouteMetric 1
+```
+
+Re-check these after changing Wi-Fi networks: the routes pin a gateway, so a new
+network silently blackholes them while host-specific `/32` routes keep working.
+
 ## Demo
 
 See [docs/DEMO.md](docs/DEMO.md) for a short reproducible walkthrough.
