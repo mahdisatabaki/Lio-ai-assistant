@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useSyncExternalStore } from "react";
 
 import { config } from "@/lib/config";
 import { createInitialState } from "@/lib/conversation/state";
@@ -16,6 +16,7 @@ import type {
 
 import { ConversationView } from "./conversation-view";
 import { HomeScreen } from "./home-screen";
+import { hasCompletedOnboarding, Onboarding } from "./onboarding";
 
 export type UiMessage = {
   id: string;
@@ -44,6 +45,17 @@ export function AssistantApp() {
   const [state, setState] = useState<ConversationState>(createInitialState);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // localStorage is an external store, so it is read as one. The server
+  // snapshot reports "completed" so returning visitors never see onboarding
+  // flash during hydration, and this avoids setting state from an effect.
+  const completedOnboarding = useSyncExternalStore(
+    () => () => {},
+    hasCompletedOnboarding,
+    () => true,
+  );
+  const [dismissedOnboarding, setDismissedOnboarding] = useState(false);
+  const showOnboarding = !completedOnboarding && !dismissedOnboarding;
 
   // Kept out of state so a retry cannot race a re-render.
   const pendingRef = useRef<{ text: string; state: ConversationState } | null>(null);
@@ -132,6 +144,10 @@ export function AssistantApp() {
     setState(createInitialState());
     setError(null);
   }, []);
+
+  if (showOnboarding) {
+    return <Onboarding onDone={() => setDismissedOnboarding(true)} />;
+  }
 
   if (messages.length === 0) {
     return <HomeScreen onSubmit={submit} />;

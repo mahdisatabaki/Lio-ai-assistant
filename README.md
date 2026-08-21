@@ -1,17 +1,55 @@
-# لیو — Lio, the Liara AI Assistant
+# Lio — لیو، دستیار هوشمند لیارا
 
-**Lio** (لیو) is a Persian, RTL-first assistant that gets a beginner from *"something is broken"*
-or *"I want my project online"* to the **next concrete result**.
+**A technical teammate for Liara beginners: it diagnoses your error and walks you
+to a deployed app — without making you search the documentation.**
 
-It is not a documentation search box. Liara's docs are organised by service; a
-stuck beginner arrives with an error message or a goal, not with the name of the
-service that documents it. This product does the translation:
+### ▶ Live demo — https://liara-ai-assistant.liara.run
 
-> user's situation → relevant context → the one thing to do next
+📄 [Challenge submission](docs/CHALLENGE_SUBMISSION.md) · 🎬 [Demo script](docs/DEMO_SCRIPT.md)
 
-Everything it says about Liara is grounded in Liara's own documentation, with the
-source shown. When the docs do not support an answer, it says so instead of
-guessing.
+---
+
+## Why it is different
+
+Most doc assistants hand you a link. Lio reads the page and hands you the
+answer.
+
+Retrieval searches broadly, then narrows to **one** document *before* the model
+sees anything — so the reply commits to one diagnosis, one next action, and one
+source instead of hedging across pages. When the documentation cannot support an
+answer, Lio says so rather than inventing a config key.
+
+| | |
+|---|---|
+| Live evals | **18/18 pass** against production |
+| Retrieval | **Source@5 = 5/5**, each expected source ranked first |
+| Knowledge | 1,143 official doc files → 5,441 indexed chunks |
+| Tests | 398 |
+| Guided deployment cost | **0** model calls per step |
+
+---
+
+## The two features
+
+**عیب‌یابی با لیو** — paste an error, log, or build output. Lio preserves the
+exact token (`ECONNRESET`, `liara.json`), finds the canonical Liara page, and
+gives one diagnosis with one next action.
+
+**دیپلوی با لیو** — a step-by-step path from project to deployed app. An error
+mid-journey branches into troubleshooting *and returns to the same step*; a
+stray remark never advances progress; nothing is declared done without the
+user's confirmation.
+
+**Grounded Q&A** — any other Liara question, from the main composer.
+
+---
+
+## Try it in 30 seconds
+
+1. Open the [live demo](https://liara-ai-assistant.liara.run)
+2. Click **عیب‌یابی با لیو** and paste: `Error: read ECONNRESET`
+3. Click **دیپلوی با لیو**, answer a couple of steps, then paste that same error —
+   watch the deployment step survive
 
 ---
 

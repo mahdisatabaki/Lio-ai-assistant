@@ -224,6 +224,30 @@ Zero added model calls. 18/18 live evals and Source@5 = 5/5 unchanged.
 
 ---
 
+### BL-093…BL-099 — Lio feature presentation and final UX
+
+Status: DONE — verified on production.
+
+- **BL-093** Home presents the two features as cards: icon and name only, colour
+  matched to the mode each one opens into. General Q&A stays available below them,
+  deliberately quieter, and is not a third card.
+- **BL-094** First-run onboarding: three short screens, skippable on each, storing
+  only `lio_onboarding_v1`. Read through `useSyncExternalStore` so the server
+  render agrees with the client and returning visitors see no flash.
+- **BL-095/096** Troubleshooting wears a faint orange wash, deployment a faint
+  purple one, each with a visible Persian label so colour is never the only cue.
+- **BL-097** Lio's answer is white and bordered; the user's message is slate.
+  Mode colours mark what the conversation is doing, never who is speaking.
+- **BL-098** Verified at 375/768/1280: cards stack below 420px, no page overflow,
+  composer never covered, technical blocks scroll internally.
+- **BL-099** Regression held: 18/18 live evals, Source@5 5/5, DEMO-01 pass, cost
+  budget unchanged. 398 tests.
+
+**Development is frozen for challenge submission.** Only P0/P1 defects, security
+issues, or a broken demo justify further changes.
+
+---
+
 # 4. Phase 1 — Persian / RTL Product Shell
 
 ## Goal

@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 import type { ConversationState, NextAction } from "@/lib/conversation/types";
 import { journeyProgress } from "@/lib/conversation/state";
+import { featureModeFor, themeFor } from "@/lib/ui/modes";
 import { cn } from "@/lib/utils";
 
 import { Composer } from "./composer";
@@ -38,6 +39,10 @@ export function ConversationView({
   const endRef = useRef<HTMLDivElement>(null);
   const progress = journeyProgress(state);
 
+  // Mode colour marks what the conversation is doing, not who is speaking.
+  const mode = featureModeFor({ intent: state.intent, activeJourney: state.activeJourney });
+  const theme = themeFor(mode);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length, isSending]);
@@ -47,8 +52,14 @@ export function ConversationView({
   }
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
+    <div
+      className="flex min-h-full flex-1 flex-col"
+      style={theme ? { backgroundColor: theme.surface } : undefined}
+    >
+      <header
+        className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur"
+        style={theme ? { borderColor: theme.border } : undefined}
+      >
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-4 py-2.5">
           <span className="flex items-center gap-2 text-sm font-medium">
             {/* Decorative: the name beside it already announces the identity. */}
@@ -63,6 +74,15 @@ export function ConversationView({
             />
             لیو، دستیار لیارا
           </span>
+          {/* The label carries the mode too, so colour is never the only cue. */}
+          {theme ? (
+            <span
+              className="rounded-full px-2 py-0.5 text-[0.7rem] font-medium"
+              style={{ backgroundColor: theme.soft, color: theme.ink }}
+            >
+              {theme.label}
+            </span>
+          ) : null}
           <button
             type="button"
             onClick={onReset}
@@ -77,6 +97,7 @@ export function ConversationView({
             title={JOURNEY_TITLES[state.activeJourney] ?? "مسیر راهنما"}
             current={progress.current}
             total={progress.total}
+            accent={themeFor("deployment")!}
           />
         ) : null}
       </header>
@@ -92,11 +113,14 @@ export function ConversationView({
               )}
             >
               <div
+                // Lio's answer is the primary content: white and bordered.
+                // The user's message sits back in slate. Neither uses the mode
+                // colours, which belong to the conversation, not the speaker.
                 className={cn(
                   "w-full min-w-0 rounded-xl px-3.5 py-3 text-sm",
                   message.role === "user"
-                    ? "bg-muted/70"
-                    : "border border-border bg-background",
+                    ? "border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800/60"
+                    : "border border-border bg-white shadow-sm dark:bg-background",
                 )}
               >
                 <p className="mb-1.5 text-[0.7rem] text-muted-foreground">

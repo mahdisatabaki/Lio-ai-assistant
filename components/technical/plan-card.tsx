@@ -40,16 +40,29 @@ export function JourneyProgress({
   title,
   current,
   total,
+  accent,
 }: {
   title: string;
   current: number;
   total: number;
+  /** Deployment-mode colours, so the strip reads as part of that mode. */
+  accent?: { soft: string; border: string; accent: string; ink: string };
 }) {
   return (
-    <div className="flex items-center gap-2 border-b border-border bg-muted/40 px-4 py-2 text-xs">
-      <Check className="size-3.5 shrink-0 text-muted-foreground" />
-      <span className="truncate text-foreground">{title}</span>
-      <span className="shrink-0 text-muted-foreground">
+    <div
+      className="flex items-center gap-2 border-b px-4 py-2 text-xs"
+      style={
+        accent
+          ? { backgroundColor: accent.soft, borderColor: accent.border, color: accent.ink }
+          : undefined
+      }
+    >
+      <Check
+        className="size-3.5 shrink-0"
+        style={accent ? { color: accent.accent } : undefined}
+      />
+      <span className="truncate">{title}</span>
+      <span className="shrink-0 opacity-80">
         — مرحله {current.toLocaleString("fa-IR")} از {total.toLocaleString("fa-IR")}
       </span>
     </div>
