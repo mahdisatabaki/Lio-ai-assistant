@@ -40,3 +40,24 @@ describe("serviceHint", () => {
     expect(serviceHint("پروژه‌م بالا نمیاد")).toBeNull();
   });
 });
+
+describe("serviceHint — persistent user files", () => {
+  it.each([
+    "عکس‌های کاربرام رو روی خود برنامه نگه دارم یا نه؟",
+    "کاربرها فایل آپلود می‌کنن، کجا ذخیره‌شون کنم؟",
+  ])("routes an upload question to object storage: %s", (query) => {
+    expect(serviceHint(query)).toBe("object-storage");
+  });
+
+  it("does not fire for an unrelated deployment question", () => {
+    expect(serviceHint("چطور پروژه رو دیپلوی کنم؟")).toBeNull();
+  });
+});
+
+describe("serviceHint — upload wording that is not about user files", () => {
+  it("does not send a node_modules deployment question to Object Storage", () => {
+    expect(
+      serviceHint("آیا باید پوشه node_modules رو موقع استقرار روی لیارا آپلود کنم؟"),
+    ).toBeNull();
+  });
+});

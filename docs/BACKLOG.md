@@ -196,6 +196,34 @@ displayed an irrelevant source.
 
 ---
 
+### BL-092 — Full Lio voice, behavior, and persona compliance
+
+Status: DONE — verified in real production answers, not only in the prompt.
+
+The system prompt is now a sectioned behavior contract rather than an identity
+paragraph bolted onto generic rules: identity, voice, structure, technical
+level, source role, one-document rule, action orientation, confirmation,
+uncertainty, error behavior, after-action, humour, emoji, slogan, session
+memory, support escalation, privacy, grounding.
+
+Three defects were found by reading live output, and none would have shown up in
+a prompt review:
+- A config described in prose («توی liara.json نوشتم platform: node») was met
+  with "send me the error" — the observation layer only looked at fenced blocks.
+- An Object Storage decision question retrieved AI-prompt docs, because the
+  query never names the product; the answer was vague and used «شما».
+- «use تو» was not a strong enough instruction; «شما» is now banned outright and
+  spoken verb forms are named explicitly.
+
+`lib/conversation/persona.test.ts` holds LIO-01…16. Deterministic copy is
+asserted directly; for generated text the *contract* is asserted, and live
+obedience is measured by `npm run eval:live` — a prompt containing a rule is not
+evidence the rule is followed.
+
+Zero added model calls. 18/18 live evals and Source@5 = 5/5 unchanged.
+
+---
+
 # 4. Phase 1 — Persian / RTL Product Shell
 
 ## Goal

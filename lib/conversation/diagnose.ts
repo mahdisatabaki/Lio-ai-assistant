@@ -1,3 +1,5 @@
+import { extractTechnicalTokens } from "@/lib/rag/tokens";
+
 /**
  * Deterministic inspection of text the user pasted.
  *
@@ -143,5 +145,17 @@ export function lacksErrorEvidence(text: string, observations: Observation[]): b
   );
   const hasCodeBlock = /```/.test(trimmed);
 
-  return !hasErrorToken && !hasCodeBlock && lineCount <= 3 && trimmed.length < 160;
+  // A literal like `liara.json` or `package.json` is evidence even when the
+  // user typed it in prose rather than a fenced block. Asking "send me the
+  // error" right after someone told you their exact config reads as not having
+  // listened to them.
+  const hasTechnicalLiteral = extractTechnicalTokens(trimmed).length > 0;
+
+  return (
+    !hasErrorToken &&
+    !hasCodeBlock &&
+    !hasTechnicalLiteral &&
+    lineCount <= 3 &&
+    trimmed.length < 160
+  );
 }

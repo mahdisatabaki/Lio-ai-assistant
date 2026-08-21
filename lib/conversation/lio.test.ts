@@ -97,7 +97,10 @@ describe("C — serious failures stay serious", () => {
   });
 
   it("tells the model to drop emoji and humour on serious errors", () => {
-    expect(TROUBLESHOOTING_SYSTEM_PROMPT).toContain("بدون ایموجی و بدون شوخی");
+    // Asserted as behavior, not exact phrasing: the rule must be present in
+    // some form, but the wording is allowed to improve.
+    expect(TROUBLESHOOTING_SYSTEM_PROMPT).toMatch(/نه شوخی، نه ایموجی|بدون شوخی/);
+    expect(TROUBLESHOOTING_SYSTEM_PROMPT).toContain("خطای جدی");
   });
 });
 
@@ -105,12 +108,12 @@ describe("D — consequential actions still require confirmation", () => {
   it("both prompts demand explicit confirmation before an impactful change", () => {
     for (const prompt of [GENERAL_SYSTEM_PROMPT, TROUBLESHOOTING_SYSTEM_PROMPT]) {
       expect(prompt).toContain("تأیید صریح بگیر");
-      expect(prompt).toContain("بدون تأیید کاربر، انجامش نده");
+      expect(prompt).toMatch(/بدون تأیید کاربر، کار اثرگذار انجام نده/);
     }
   });
 
   it("names the operations that need it", () => {
-    for (const term of ["حذف", "ری‌استارت", "تغییر پلن یا هزینه", "متغیر محیطی", "DNS"]) {
+    for (const term of ["حذف", "ری‌استارت", "تغییر پلن", "متغیر محیطی", "DNS", "بازگردانی"]) {
       expect(GENERAL_SYSTEM_PROMPT).toContain(term);
     }
   });

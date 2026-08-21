@@ -75,6 +75,17 @@ const LIARA_TERMS = [
  */
 const DERIVED_TERM_SIGNALS: [RegExp, string][] = [
   [/npm\s*err|package\s*registry|registry\s*failed|نصب\s*پکیج|مخزن\s*پکیج/i, "mirror"],
+  // Persistent user files. Someone asking "should I keep user photos on the
+  // app?" never types "Object Storage", yet that is Liara's documented answer.
+  // Without this the query carried no signal at all and semantic search drifted
+  // to unrelated pages.
+  // Scoped to *user* files on purpose. A bare "آپلود" also appears in
+  // "should I upload node_modules?", which is a deployment question — that
+  // over-trigger sent a deployment question to the Object Storage docs.
+  [
+    /(عکس|تصویر|ویدیو|فایل)(‌| )?های? ?(کاربر|یوزر)|(کاربر|یوزر)[^.\n]{0,25}(آپلود|اپلود|upload)|(آپلود|اپلود|upload)[^.\n]{0,25}(کاربر|یوزر)|ذخیره(‌| )?(ی )?(عکس|تصویر|ویدیو)/i,
+    "object storage",
+  ],
 ];
 
 /**

@@ -241,3 +241,24 @@ describe("BL-051 — troubleshooting continuation", () => {
     expect(context.recentMessages).toHaveLength(1);
   });
 });
+
+describe("config described in prose still gets diagnosed", () => {
+  it("does not ask for error output when the user named the config", async () => {
+    const d = deps();
+    const response = await send(
+      "پروژه‌م Next هست ولی توی liara.json نوشتم platform: node. مشکلیه؟",
+      d,
+    );
+
+    expect(response.message).not.toContain("متن خطا یا چند خط آخر");
+    expect(d.retrieve).toHaveBeenCalled();
+  });
+
+  it("still asks when there is genuinely nothing to work with", async () => {
+    const d = deps();
+    const response = await send("deploy نشد. ارور میده.", d);
+
+    expect(response.message).toContain("متن خطا");
+    expect(d.retrieve).not.toHaveBeenCalled();
+  });
+});

@@ -35,7 +35,13 @@ export function platformHint(query: string): string | null {
  * real answer in production. Naming the service the user asked about settles it.
  */
 const SERVICE_PATTERNS: [RegExp, string][] = [
-  [/object\s*storage|آبجکت\s*استوریج|ابجکت\s*استوریج|باکت|bucket/i, "object-storage"],
+  [
+    // Persistent *user* file language counts even when the product is never
+    // named. Scoped tightly: a bare "آپلود" also covers "upload node_modules",
+    // which belongs to the deployment docs.
+    /object\s*storage|آبجکت\s*استوریج|ابجکت\s*استوریج|باکت|bucket|(عکس|تصویر|ویدیو|فایل)(‌| )?های? ?(کاربر|یوزر)|(کاربر|یوزر)[^.\n]{0,25}(آپلود|اپلود|upload)/i,
+    "object-storage",
+  ],
   [/postgres|پستگرس|دیتابیس|database|dbaas/i, "dbaas"],
   [/دامنه|domain|dns/i, "dns-management-system"],
   [/ایمیل|email|mail/i, "email-server"],

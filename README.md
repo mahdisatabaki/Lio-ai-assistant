@@ -163,6 +163,12 @@ changed.
 | Embedding model | `openai/text-embedding-3-small` (1536 dimensions) |
 | Live evals | 18/18 pass |
 | Retrieval | Expected Source @5 = 5/5, each ranked first |
+| Answer shape | one document, one diagnosis, one action, one source |
+| Tests | 371 |
+
+Lio's personality is a behavior contract in the system prompt, not a label:
+`docs/LIO_CHARACTER_GUIDE.md` and its companions are the source of truth, and
+`lib/conversation/persona.test.ts` guards it.
 
 ## Demo
 
