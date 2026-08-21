@@ -1,21 +1,74 @@
-# Liara AI Assistant
+# دستیار لیارا — Liara AI Assistant
 
-A Persian, RTL-first AI support assistant for [Liara](https://liara.ir).
+A Persian, RTL-first assistant that gets a beginner from *"something is broken"*
+or *"I want my project online"* to the **next concrete result**.
 
-One assistant, three behaviors:
+It is not a documentation search box. Liara's docs are organised by service; a
+stuck beginner arrives with an error message or a goal, not with the name of the
+service that documents it. This product does the translation:
 
-- **Troubleshooting** — paste an error, log, or build output and get one concrete next action.
-- **Build on Liara + Guided Deployment** — a minimal service plan and a step-by-step Next.js → Liara deployment.
-- **General Liara Q&A** — grounded answers with sources.
+> user's situation → relevant context → the one thing to do next
 
-Answers are grounded in the official Liara documentation.
+Everything it says about Liara is grounded in Liara's own documentation, with the
+source shown. When the docs do not support an answer, it says so instead of
+guessing.
 
-## Requirements
+---
 
-- Node.js 20 or newer
-- npm
+## What it does
 
-## Getting started
+**Troubleshooting** — paste an error, log, stack trace, build output, or config
+snippet. It reads what you actually sent, grounds the diagnosis in Liara's docs,
+and gives one concrete next action with a source.
+
+**Build on Liara** — describe the project; it recommends the minimum Liara
+services required and nothing more. A service only appears when you described a
+need for it, and each non-obvious one carries a reason.
+
+**Guided Next.js deployment** — a step-by-step path from a local project to a
+running app, one action at a time. It never runs a command for you; it shows the
+command and waits for your result.
+
+**Grounded Q&A** — normal Liara questions, answered from retrieved documentation
+with sources.
+
+All four happen in one conversation. Asking a side question mid-deployment does
+not lose your place, and an error mid-deployment moves into troubleshooting and
+comes back to the step you were on.
+
+---
+
+## Architecture
+
+```text
+Browser (Persian, RTL)
+   │
+   ▼
+Next.js App Router  ──  deterministic intent + journey state
+   │                      (no agent loop, no model call)
+   ├──▶ retrieval ──▶ Liara PostgreSQL + pgvector
+   │                    semantic (cosine) + exact-token, fused by RRF
+   └──▶ Liara AI ────  one grounded generation
+```
+
+One assistant, one endpoint, three Liara resources. Deliberately not here:
+multi-agent orchestration, an agent framework, Redis, an external vector
+database, a reranker, a model router, or authentication.
+
+The parts that can be deterministic are: intent routing, journey transitions,
+service planning, and every guided step's content. Those cost **zero** model
+calls. The model is used only where judgement is genuinely needed — explaining a
+grounded answer — and exactly once per request.
+
+Sources are attached by the server from retrieval metadata. The model never
+emits a URL, so a fabricated citation is impossible rather than discouraged.
+
+Implementation detail: the Vercel AI SDK (`ai`, `@ai-sdk/react`) with its
+OpenAI-compatible provider pointed at Liara AI.
+
+---
+
+## Local development
 
 ```bash
 npm install
@@ -25,74 +78,70 @@ npm install
 npm run dev
 ```
 
-The application runs at `http://localhost:3000`.
+Open http://localhost:3000.
 
-## Commands
+The UI and the deterministic journeys work without any Liara credentials.
+Grounded answers need a database and an AI key — without them the assistant
+reports that it cannot reach its sources rather than answering ungrounded.
 
-| Command         | What it does                        |
-| --------------- | ----------------------------------- |
-| `npm run dev`   | Start the development server        |
-| `npm run lint`  | Lint the codebase                   |
-| `npm test`      | Run the test suite                  |
-| `npm run build` | Create a production build           |
-| `npm start`     | Serve the production build          |
+---
 
-## Configuration
+## Environment
 
-Copy `.env.example` to `.env.local` and fill in the values. All variables are
-server-only; none are exposed to the browser.
+Copy `.env.example` to `.env.local` and fill it in. Names only; never commit
+values.
 
-## Health check
+```text
+DATABASE_URL
+LIARA_AI_API_KEY
+LIARA_AI_BASE_URL
+LIARA_CHAT_MODEL
+LIARA_EMBEDDING_MODEL
+```
 
-`GET /api/health` returns `{"status":"ok"}` when the application process is
-serving requests. It calls no AI model and touches no database, so it is free to
-poll.
+All are server-only and read through a single `server-only` module, so a build
+fails if client code ever imports them.
 
-## Deploying to Liara
+---
 
-The application targets Liara PaaS. `liara.json` sets the `next` platform and
-`.liaraignore` keeps `node_modules`, build output, and local secrets out of the
-upload. Liara installs dependencies and runs `build`, then `start`.
+## Knowledge index
 
 ```bash
-liara deploy --app=<app-id> --platform=next
+npm run db:migrate
 ```
 
-The full production runbook is BL-080.
-
-### Liara connectivity behind a VPN
-
-Liara refuses connections from foreign VPN exit IPs. On a machine with a
-full-tunnel VPN, `liara` commands and `console.liara.ir` hang and time out even
-though DNS resolves and the TCP port appears open, because the tunnel accepts
-the connection locally before failing to proxy it.
-
-Liara's services sit in two Iranian netblocks: `185.208.181.0/24` (console, API,
-docs) and `62.60.220.0/24` (deployed `*.liara.run` apps). Routing just those
-outside the tunnel fixes it while leaving the VPN up for everything else. From
-an **elevated** PowerShell, with `<gateway>` and `<ifIndex>` taken from
-`Get-NetRoute -DestinationPrefix 0.0.0.0/0` for the physical adapter:
-
-```powershell
-New-NetRoute -DestinationPrefix 185.208.181.0/24 -InterfaceIndex <ifIndex> -NextHop <gateway> -RouteMetric 1
+```bash
+npm run docs:index
 ```
 
-Repeat for `62.60.220.0/24`. Verify with `curl https://console.liara.ir` — it
-should return 200 in under a second. These are DNS-resolved addresses rather
-than published infrastructure, so re-check them if Liara moves hosts.
+The indexer shallow-clones the official `liara-cloud/docs` repository, chunks
+`public/llms/**/*.md` by heading, and embeds only new or changed chunks. Add
+`-- --dry-run` to parse and chunk without a database or any embedding cost.
 
-## Documentation
+---
 
-| Document                                | Contents                             |
-| --------------------------------------- | ------------------------------------ |
-| [CLAUDE.md](CLAUDE.md)                   | Permanent engineering rules          |
-| [docs/MVP.md](docs/MVP.md)               | Frozen MVP scope and product thesis  |
-| [docs/PRD.md](docs/PRD.md)               | Product behavior and requirements    |
-| [docs/TECH.md](docs/TECH.md)             | Technical architecture and stack     |
-| [docs/BACKLOG.md](docs/BACKLOG.md)       | Implementation order and status      |
-| [docs/EVALS.md](docs/EVALS.md)           | Required AI/product quality behavior |
+## Testing
 
-## Status
+```bash
+npm test
+```
 
-Under active development. See [docs/BACKLOG.md](docs/BACKLOG.md) for what is
-implemented so far.
+```bash
+npm run lint
+```
+
+```bash
+npm run build
+```
+
+---
+
+## Deployment
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the production runbook.
+
+---
+
+## Demo
+
+See [docs/DEMO.md](docs/DEMO.md) for a short reproducible walkthrough.

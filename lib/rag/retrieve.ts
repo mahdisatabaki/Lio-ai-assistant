@@ -8,6 +8,25 @@ import { extractTechnicalTokens } from "./tokens";
 import type { Candidate, RetrievedChunk } from "./types";
 
 /**
+ * Liara documents the same guidance once per platform, so `mirror` matches the
+ * Angular, Django, and Flask pages identically. When the query names a
+ * framework, its platform's page is the one the user needs.
+ */
+const PLATFORM_PATTERNS: [RegExp, string][] = [
+  // Bare "Next" counts: users write "پروژه‌م Next هست" far more often
+  // than they spell out "Next.js".
+  [/(^|[^a-z])next(\.?js)?([^a-z]|$)|نکست/i, "nextjs"],
+  [/django|جنگو/i, "django"],
+  [/laravel|لاراول/i, "laravel"],
+  [/angular/i, "angular"],
+  [/flask/i, "flask"],
+];
+
+export function platformHint(query: string): string | null {
+  return PLATFORM_PATTERNS.find(([pattern]) => pattern.test(query))?.[1] ?? null;
+}
+
+/**
  * Semantic + exact-token retrieval (`docs/TECH.md` 16).
  *
  * Two arms, fused by rank. Semantic search handles natural questions; the
@@ -75,10 +94,12 @@ async function semanticSearch(query: string, limit: number): Promise<Candidate[]
 const TITLE_WEIGHT = 3;
 const HEADING_WEIGHT = 2;
 const CONTENT_WEIGHT = 1;
+const PLATFORM_WEIGHT = 4;
 
 async function lexicalSearch(
   tokens: string[],
   limit: number,
+  platform: string | null = null,
 ): Promise<Candidate[]> {
   if (tokens.length === 0) return [];
 
@@ -93,14 +114,23 @@ async function lexicalSearch(
 
   const patterns = tokens.map((token) => `%${token.toLowerCase()}%`);
 
+  // A platform match outweighs any single field match, so the framework the
+  // user actually named wins over an identical page for another one.
+  const platformBoost = platform
+    ? `+ CASE WHEN platform = $${tokens.length + 1} THEN ${PLATFORM_WEIGHT} ELSE 0 END`
+    : "";
+  const params: unknown[] = platform
+    ? [...patterns, platform, limit]
+    : [...patterns, limit];
+
   const { rows } = await getPool().query<Row>(
     `SELECT id, source_path, source_url, title, heading, content,
-            (${matchCount}) AS score
+            (${matchCount}) ${platformBoost} AS score
        FROM doc_chunks
       WHERE (${matchCount}) > 0
       ORDER BY score DESC, id ASC
-      LIMIT $${tokens.length + 1}`,
-    [...patterns, limit],
+      LIMIT $${params.length}`,
+    params,
   );
 
   return rows.map((row) =>
@@ -137,7 +167,7 @@ export async function retrieveDocumentation(
 
   const [semantic, lexical] = await Promise.all([
     semanticSearch(query, SEMANTIC_CANDIDATES),
-    lexicalSearch(tokens, LEXICAL_CANDIDATES),
+    lexicalSearch(tokens, LEXICAL_CANDIDATES, platformHint(query)),
   ]);
 
   const chunks = fuseCandidates(semantic, lexical, finalCount);

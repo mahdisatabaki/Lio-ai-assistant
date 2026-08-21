@@ -702,7 +702,8 @@ Deploy the complete product, run the fixed EVAL suite, fix only material failure
 
 ### BL-080 — Create the production Liara deployment runbook and resources
 
-Status: TODO
+Status: DONE — docs/DEPLOYMENT.md covers env contract, the eleven-step
+production sequence, and the minimum-exposure procedure for indexing access.
 
 Acceptance Criteria:
 - `docs/DEPLOYMENT.md` exists.
@@ -722,7 +723,11 @@ Dependencies:
 
 ### BL-081 — Build the production knowledge index and deploy the complete MVP
 
-Status: TODO
+Status: BLOCKED (external) — every local half is done: migration, indexer,
+and deploy config are implemented and dry-run verified against the real corpus
+(1143 files, 5441 chunks, 0 failures). Production PostgreSQL, the live index,
+and the PaaS deployment need network access to Liara, which this machine's VPN
+exit IP is refused for. See BL-002.
 
 Acceptance Criteria:
 - Production migration succeeds.
@@ -746,7 +751,9 @@ Dependencies:
 
 ### BL-082 — Execute EVALS and fix critical MVP failures
 
-Status: TODO
+Status: PARTIAL — see docs/EVAL_RUN.md. 12 PASS, 3 PARTIAL, 3 BLOCKED.
+Retrieval Source@5 is 5/5 on the exact-token arm. Every gap is model-output
+quality, which needs live Liara AI.
 
 Acceptance Criteria:
 - All Stage 7 EVAL cases run against the real retrieval/model pipeline.
@@ -765,7 +772,9 @@ Dependencies:
 
 ### BL-083 — Final UX, reliability, and cost QA
 
-Status: TODO
+Status: DONE — desktop and 375px mobile verified in a browser (RTL, no page
+overflow, LTR monospace log blocks with internal scroll, copy action, chips);
+full journey simulation, failure paths, limits, and the cost budget re-confirmed.
 
 Acceptance Criteria:
 - Home and Conversation work on mobile and desktop.
@@ -789,7 +798,8 @@ Dependencies:
 
 ### BL-084 — Prepare final README and challenge demo
 
-Status: TODO
+Status: DONE — README rewritten for the challenge; docs/DEMO.md holds the
+reproducible walkthrough. Live URL still to be filled in once deployed.
 
 Acceptance Criteria:
 - README explains product purpose and primary journeys.

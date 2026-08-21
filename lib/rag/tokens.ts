@@ -41,6 +41,26 @@ const SINGLE_PATTERNS: RegExp[] = [
   /\b[45]\d{2}\s+[A-Z][a-z]+/g,
 ];
 
+/**
+ * Liara product and platform nouns worth matching literally.
+ *
+ * These behave like technical tokens in this corpus: "object storage" and
+ * "mirror" name specific documentation areas, and a user asking about them in
+ * Persian prose otherwise offers the lexical arm nothing to match. Added after
+ * EVALS R-03 and R-05 returned no tokens at all.
+ */
+const LIARA_TERMS = [
+  "object storage",
+  "bucket",
+  "mirror",
+  "pgvector",
+  "dbaas",
+  "paas",
+  "liara cli",
+  "private network",
+  "one-click",
+];
+
 /** Words that match a pattern but carry no retrieval signal. */
 const STOP_TOKENS = new Set([
   "e.g",
@@ -92,6 +112,11 @@ export function extractTechnicalTokens(text: string): string[] {
     for (const match of text.matchAll(pattern)) {
       add(match[0].replace(/\s+/g, " "));
     }
+  }
+
+  const lowered = text.toLowerCase();
+  for (const term of LIARA_TERMS) {
+    if (lowered.includes(term)) add(term);
   }
 
   for (const pattern of SINGLE_PATTERNS) {
