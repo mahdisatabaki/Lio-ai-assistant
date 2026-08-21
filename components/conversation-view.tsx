@@ -50,7 +50,19 @@ export function ConversationView({
     <div className="flex min-h-full flex-1 flex-col">
       <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-4 py-2.5">
-          <span className="text-sm font-medium">دستیار لیارا</span>
+          <span className="flex items-center gap-2 text-sm font-medium">
+            {/* Decorative: the name beside it already announces the identity. */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- see Home: the
+                optimizer would strip the WebP animation. */}
+            <img
+              src="/images/liv-wave-web-small.webp"
+              alt=""
+              width={256}
+              height={266}
+              className="size-6 shrink-0"
+            />
+            لیو، دستیار لیارا
+          </span>
           <button
             type="button"
             onClick={onReset}
@@ -88,7 +100,7 @@ export function ConversationView({
                 )}
               >
                 <p className="mb-1.5 text-[0.7rem] text-muted-foreground">
-                  {message.role === "user" ? "تو" : "دستیار"}
+                  {message.role === "user" ? "تو" : "لیو"}
                 </p>
 
                 <MessageContent text={message.content} />
@@ -109,10 +121,10 @@ export function ConversationView({
           {isSending ? (
             <li aria-live="polite">
               <div className="w-full rounded-xl border border-border bg-background px-3.5 py-3">
-                <p className="mb-1.5 text-[0.7rem] text-muted-foreground">دستیار</p>
+                <p className="mb-1.5 text-[0.7rem] text-muted-foreground">لیو</p>
                 <p className="flex items-center gap-2 text-sm text-muted-foreground">
                   <span className="size-1.5 animate-pulse rounded-full bg-muted-foreground" />
-                  در حال بررسی...
+                  دارم بررسیش می‌کنم…
                 </p>
               </div>
             </li>

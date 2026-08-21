@@ -167,7 +167,7 @@ describe("BL-042 — failure behavior", () => {
 
   it("returns safe Persian copy when retrieval is down", async () => {
     const response = await ask("سؤالی درباره سرویس‌های لیارا", failing("retrieve"));
-    expect(response.message).toMatch(/مستندات لیارا وصل بشم|در دسترس نیست/);
+    expect(response.message).toMatch(/مستندات لیارا دسترسی ندارم|در دسترس نیست/);
     expect(response.sources ?? []).toEqual([]);
   });
 

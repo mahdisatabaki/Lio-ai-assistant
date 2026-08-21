@@ -1,6 +1,6 @@
-# دستیار لیارا — Liara AI Assistant
+# لیو — Lio, the Liara AI Assistant
 
-A Persian, RTL-first assistant that gets a beginner from *"something is broken"*
+**Lio** (لیو) is a Persian, RTL-first assistant that gets a beginner from *"something is broken"*
 or *"I want my project online"* to the **next concrete result**.
 
 It is not a documentation search box. Liara's docs are organised by service; a

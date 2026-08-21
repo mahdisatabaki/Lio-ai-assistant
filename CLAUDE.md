@@ -28,6 +28,11 @@ Before making product or architecture decisions, use the project documents in th
 5. `docs/EVALS.md` — required AI/product quality behavior
 6. `docs/DEPLOYMENT.md` — production deployment requirements
 7. `docs/DEVLOG.md` — meaningful implementation history and decisions
+8. `docs/LIO_CHARACTER_GUIDE.md`, `docs/LIO_SYSTEM_PROMPT.md`,
+   `docs/LIO_UI_AND_ANIMATION.md`, `docs/LIO_IMPLEMENTATION_SPEC.md` — the
+   assistant's product identity (Lio / لیو): personality, tone, microcopy, and
+   mascot usage. Personality layers on top of the grounding rules and never
+   relaxes them.
 
 Do not invent product requirements that are not supported by these documents.
 

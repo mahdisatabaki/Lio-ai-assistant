@@ -29,10 +29,37 @@ export const PRIMARY_ACTIONS = [
 export function HomeScreen({ onSubmit }: { onSubmit: (text: string) => void }) {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-4 py-10 sm:py-16">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold sm:text-3xl">چطور می‌تونم کمکت کنم؟</h1>
-        <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">
-          اگر خطا داری همین‌جا بفرست، یا بگو می‌خوای چه کاری روی لیارا انجام بدی.
+      <div className="flex flex-col items-center text-center">
+        {/*
+          Lio's main appearance (docs/LIO_UI_AND_ANIMATION.md). A plain <img>
+          keeps the animated WebP playing and its transparency intact — no
+          canvas, no animation library, no recolouring of the asset.
+          `width`/`height` match the source so the hero reserves its space and
+          nothing shifts once the image loads.
+        */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- next/image
+            re-encodes through its optimizer, which drops WebP animation. The
+            mascot is an approved asset that must play as delivered
+            (docs/LIO_UI_AND_ANIMATION.md). */}
+        <img
+          src="/images/liv-wave-web-512.webp"
+          srcSet="/images/liv-wave-web-small.webp 256w, /images/liv-wave-web-512.webp 512w"
+          sizes="(max-width: 640px) 160px, 208px"
+          alt="لیو، دستیار هوش مصنوعی لیارا"
+          width={512}
+          height={532}
+          className="h-auto w-40 max-w-full sm:w-52"
+        />
+
+        <h1 className="mt-4 text-2xl font-semibold sm:text-3xl">
+          سلام، من لیو هستم <span aria-hidden="true">👋</span>
+        </h1>
+        <p className="mt-3 max-w-md text-sm leading-7 text-muted-foreground sm:text-base">
+          توی تمام مراحل دیپلوی کنارت هستم. اگر سؤالی داشتی یا جایی به مشکل خوردی، کافیه بهم بگی.
+        </p>
+        {/* The official slogan appears once, here, and never in a reply. */}
+        <p className="mt-2 text-sm font-medium text-foreground/80">
+          نگران نباش، با هم دیپلویش می‌کنیم.
         </p>
       </div>
 

@@ -28,7 +28,7 @@ export async function POST(request: Request): Promise<Response> {
         error: {
           code: "rate_limited",
           message:
-            "یه کم سریع پشت‌سرهم پیام فرستادی. چند لحظه صبر کن و دوباره بفرست.",
+            "یه کم سریع پشت‌سرهم پیام فرستادی. چند لحظه صبر کن، بعد ادامه می‌دیم.",
         },
       } satisfies ChatErrorResponse,
       { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
@@ -92,7 +92,7 @@ export async function POST(request: Request): Promise<Response> {
 
     return errorResponse(500, {
       code: "server_error",
-      message: "یه مشکل موقتی پیش اومد. لطفاً دوباره تلاش کن.",
+      message: "یه مشکل موقتی پیش اومد. دوباره بفرست تا ادامه بدیم.",
     });
   }
 }

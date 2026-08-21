@@ -121,6 +121,30 @@ Dependencies:
 
 ---
 
+### BL-085 — Integrate Lio identity, personality, prompt, and mascot
+
+Status: DONE — the assistant is now Lio (لیو). Identity comes from
+`docs/LIO_CHARACTER_GUIDE.md`, `docs/LIO_SYSTEM_PROMPT.md`,
+`docs/LIO_UI_AND_ANIMATION.md`, and `docs/LIO_IMPLEMENTATION_SPEC.md`.
+
+Acceptance Criteria:
+- Persona sits on top of the grounding rules, never replacing them: evidence,
+  abstention, source policy, and confirmation boundaries are unchanged.
+- Home introduces Lio with the approved mascot; the slogan appears once there
+  and never in a reply.
+- Conversation carries a small decorative identity only.
+- Deterministic copy speaks in Lio's voice without altering state-machine
+  semantics.
+- Serious failures carry no emoji and no humour.
+- No additional model call: the cost budget is untouched.
+- 22 Lio regression tests; 308 tests total; 18/18 live evals still pass and
+  retrieval stays 5/5 after the change.
+
+Dependencies:
+- BL-082
+
+---
+
 # 4. Phase 1 — Persian / RTL Product Shell
 
 ## Goal

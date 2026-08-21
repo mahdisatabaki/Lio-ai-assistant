@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "دستیار لیارا",
-  description: "دستیار فارسی لیارا برای رفع خطا و آنلاین‌کردن پروژه",
+  title: "لیو، دستیار لیارا",
+  description: "لیو، هم‌تیمی فارسی‌زبان تو برای رفع خطا و آنلاین‌کردن پروژه روی لیارا",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
