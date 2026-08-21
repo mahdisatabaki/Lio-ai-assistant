@@ -722,12 +722,12 @@ Dependencies:
 
 ### BL-081 — Build the production knowledge index and deploy the complete MVP
 
-Status: IN PROGRESS — team infrastructure is provisioned and the application is
-deployed and healthy: PaaS `liara-ai-assistant`, PostgreSQL 16.14 with pgvector
-0.8.1, and an AI workspace on the `standard` plan (the only tier offering
-embedding models). Remaining: the Liara AI workspace API key can only be issued
-through the console, and without it the migration cannot resolve the embedding
-width, so no index exists yet.
+Status: DONE — team لیارا runs the complete MVP. PostgreSQL 16.14 with pgvector
+0.8.1, a vector(1536) column sized from the live embedding model, and 5,441
+chunks indexed from 1,143 official documentation files with zero failures. A
+second index run embedded nothing and changed nothing, confirming incremental
+sync. Deployed at https://liara-ai-assistant.liara.run with `/` 200 and
+`/api/health` reporting {"status":"ok","database":"ok"}.
 
 Acceptance Criteria:
 - Production migration succeeds.
@@ -751,9 +751,10 @@ Dependencies:
 
 ### BL-082 — Execute EVALS and fix critical MVP failures
 
-Status: PARTIAL — see docs/EVAL_RUN.md. 12 PASS, 3 PARTIAL, 3 BLOCKED.
-Retrieval Source@5 is 5/5 on the exact-token arm. Every gap is model-output
-quality, which needs live Liara AI.
+Status: DONE — 18/18 live cases pass against the deployed application using the
+real model and index (`npm run eval:live`), and retrieval scores 5/5 with every
+expected source ranked first (`npm run eval:retrieval`). Three real failures
+found and fixed during the run; see `docs/EVAL_RUN.md`.
 
 Acceptance Criteria:
 - All Stage 7 EVAL cases run against the real retrieval/model pipeline.

@@ -70,3 +70,17 @@ describe("detectIntent — inside an active journey", () => {
     ).toBe("general");
   });
 });
+
+describe("factual questions that mention deployment", () => {
+  it.each([
+    "آیا باید پوشه node_modules رو موقع استقرار روی لیارا آپلود کنم؟",
+    "برای استقرار، توی package.json چه اسکریپتی لازمه؟",
+  ])("routes to general Q&A: %s", (text) => {
+    expect(detectIntent(text, fresh)).toBe("general");
+  });
+
+  it("still starts the journey for an actual request to deploy", () => {
+    expect(detectIntent("می‌خوام پروژه‌م رو آنلاین کنم.", fresh)).toBe("deployment");
+    expect(detectIntent("چطور پروژه رو دیپلوی کنم؟", fresh)).toBe("deployment");
+  });
+});

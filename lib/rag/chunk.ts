@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import type { DocChunk } from "./types";
+import type { DocChunk } from "./types.ts";
 
 /**
  * Heading-aware Markdown chunking (`docs/TECH.md` 13).

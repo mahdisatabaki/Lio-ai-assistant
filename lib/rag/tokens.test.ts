@@ -49,10 +49,13 @@ describe("extractTechnicalTokens — noise rejection", () => {
     expect(extractTechnicalTokens("سلام، پروژه من چطور آنلاین می‌شود؟")).toEqual([]);
   });
 
-  it("returns nothing for a conceptual question without literals", () => {
+  it("extracts the product name from a conceptual Persian question", () => {
+    // This once returned nothing, and bare semantic search answered an Object
+    // Storage question in production while citing AI-SDK `generate-object`
+    // cookbook pages. The product name is the literal that fixes the citation.
     expect(
       extractTechnicalTokens("آبجکت استوریج لیارا برای چه کاری خوبه؟"),
-    ).toEqual([]);
+    ).toEqual(["object storage"]);
   });
 
   it("does not treat plain English words as technical", () => {
@@ -82,5 +85,20 @@ describe("extractTechnicalTokens — noise rejection", () => {
   it("hasTechnicalSignal follows extraction", () => {
     expect(hasTechnicalSignal("خطای ECONNRESET")).toBe(true);
     expect(hasTechnicalSignal("سلام چطوری؟")).toBe(false);
+  });
+});
+
+describe("Persian product spellings", () => {
+  it.each([
+    ["آبجکت استوریج لیارا چیه؟", "object storage"],
+    ["چطور یه باکت بسازم؟", "bucket"],
+    ["دیتابیس پستگرس لیارا", "postgres"],
+    ["شبکه خصوصی چطور کار می‌کنه؟", "private network"],
+  ])("maps %s to the English token", (query, expected) => {
+    expect(extractTechnicalTokens(query)).toContain(expected);
+  });
+
+  it("still extracts nothing from ordinary Persian prose", () => {
+    expect(extractTechnicalTokens("سلام، حالت چطوره؟")).toEqual([]);
   });
 });

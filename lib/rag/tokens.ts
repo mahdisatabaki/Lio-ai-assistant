@@ -25,6 +25,9 @@ const SINGLE_PATTERNS: RegExp[] = [
   /\bE[A-Z]{3,}\b/g,
   // SCREAMING_SNAKE identifiers: DATABASE_URL, NODE_ENV.
   /\b[A-Z][A-Z0-9]{2,}(?:_[A-Z0-9]+)+\b/g,
+  // lower_snake identifiers and directory names: node_modules, content_hash.
+  // Requiring an underscore keeps ordinary words out.
+  /\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b/g,
   // Filenames with a known config/code extension.
   /\b[\w.-]+\.(?:json|jsonc|ya?ml|toml|env|lock|ts|tsx|js|jsx|mjs|cjs|md|sh|sql|dockerfile)\b/gi,
   // Dotfiles and config files: .env.local, .liaraignore, Dockerfile.
@@ -59,6 +62,23 @@ const LIARA_TERMS = [
   "liara cli",
   "private network",
   "one-click",
+];
+
+/**
+ * Persian spellings of the same products, mapped to the English token.
+ *
+ * The documentation is written with the English product names, so a user asking
+ * about «آبجکت استوریج» offers the lexical arm nothing to match and bare
+ * semantic search drifts — a live query returned AI-SDK `generate-object`
+ * cookbook pages for an Object Storage question. Mapping the transliteration
+ * back to the English term is what keeps the citation honest.
+ */
+const PERSIAN_TERM_ALIASES: [RegExp, string][] = [
+  [/آبجکت\s*استوریج|ابجکت\s*استوریج/, "object storage"],
+  [/باکت/, "bucket"],
+  [/پستگرس|پستگرES|پستگر/, "postgres"],
+  [/شبکه\s*خصوصی/, "private network"],
+  [/میرور/, "mirror"],
 ];
 
 /** Words that match a pattern but carry no retrieval signal. */
@@ -117,6 +137,9 @@ export function extractTechnicalTokens(text: string): string[] {
   const lowered = text.toLowerCase();
   for (const term of LIARA_TERMS) {
     if (lowered.includes(term)) add(term);
+  }
+  for (const [pattern, term] of PERSIAN_TERM_ALIASES) {
+    if (pattern.test(text)) add(term);
   }
 
   for (const pattern of SINGLE_PATTERNS) {

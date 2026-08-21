@@ -1,10 +1,10 @@
 import "server-only";
 
-import { getPool } from "@/lib/server/db";
+import { getPool } from "../server/db.ts";
 
-import { toVectorLiteral } from "./embed";
-import type { ChunkStore, ExistingChunk } from "./sync";
-import type { DocChunk } from "./types";
+import { toVectorLiteral } from "./embed.ts";
+import type { ChunkStore, ExistingChunk } from "./sync.ts";
+import type { DocChunk } from "./types.ts";
 
 /** PostgreSQL-backed `ChunkStore` for the indexer (`docs/TECH.md` 15). */
 export function createPgChunkStore(): ChunkStore {

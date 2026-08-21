@@ -29,8 +29,11 @@ CREATE TABLE IF NOT EXISTS doc_chunks (
 -- Incremental sync looks chunks up by file, then compares hashes.
 CREATE INDEX IF NOT EXISTS doc_chunks_source_path_idx ON doc_chunks (source_path);
 
--- The lexical arm runs case-insensitive substring matching over these fields.
-CREATE INDEX IF NOT EXISTS doc_chunks_content_trgm_idx ON doc_chunks (lower(content) text_pattern_ops);
+-- No index on `content`. The lexical arm matches with LIKE '%token%', and a
+-- leading wildcard cannot use a btree, so such an index would never be read --
+-- while a btree over full chunk text also fails outright on rows past the 2704
+-- byte limit. At a few thousand chunks a sequential scan is well within budget.
+-- A GIN pg_trgm index is the option if measurement ever justifies one.
 
 -- No ANN index (HNSW/IVFFlat) yet. The corpus is small enough for exact search,
 -- and docs/TECH.md 4.9 defers it until measured latency justifies it.

@@ -144,22 +144,25 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the production runbook.
 
 ## Live deployment
 
-Running on Liara PaaS under the team **لیارا**:
-
 ```text
 https://liara-ai-assistant.liara.run
 ```
 
-Verified: the root page returns 200 and `/api/health` returns
-`{"status":"ok","database":"ok"}`, reaching PostgreSQL over Liara's private
-network. Deployment is pinned to the team in `liara.json` (`team-id` plus app
-id), so a stray `liara deploy` cannot land in a personal account.
+Running on Liara PaaS under the team **لیارا**, backed by Liara PostgreSQL with
+pgvector and Liara AI. `/api/health` reports
+`{"status":"ok","database":"ok"}`. Deployment is pinned to the team in
+`liara.json`, so a stray `liara deploy` cannot land in a personal account.
 
-Grounded answers are not live yet: the Liara AI workspace API key is issued
-through the console only, and until it is set the assistant reports that it
-cannot reach its sources rather than answering ungrounded. The deterministic
-halves — guided deployment, Build on Liara planning, and clarification on
-ambiguous errors — are fully live and make no model call.
+The knowledge index holds **5,441 chunks from 1,143 official documentation
+files**. Re-running the indexer re-embeds nothing unless the documentation
+changed.
+
+| | |
+|---|---|
+| Chat model | `openai/gpt-4o-mini` |
+| Embedding model | `openai/text-embedding-3-small` (1536 dimensions) |
+| Live evals | 18/18 pass |
+| Retrieval | Expected Source @5 = 5/5, each ranked first |
 
 ## Demo
 

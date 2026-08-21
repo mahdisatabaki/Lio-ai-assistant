@@ -1,4 +1,4 @@
-import type { DocChunk } from "./types";
+import type { DocChunk } from "./types.ts";
 
 /**
  * Incremental index synchronization (`docs/TECH.md` 15).

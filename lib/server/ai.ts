@@ -2,7 +2,7 @@ import "server-only";
 
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
-import { requireServerEnv } from "./env";
+import { requireServerEnv } from "./env.ts";
 
 /**
  * Liara AI access through the AI SDK's OpenAI-compatible provider

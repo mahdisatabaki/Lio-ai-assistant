@@ -8,8 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "docs:index": "node scripts/index-docs.ts",
-    "db:migrate": "node scripts/migrate.ts"
+    "docs:index": "node --conditions=react-server --env-file-if-exists=.env.local scripts/index-docs.ts",
+    "db:migrate": "node --conditions=react-server --env-file-if-exists=.env.local scripts/migrate.ts",
+    "eval:retrieval": "node --conditions=react-server --env-file-if-exists=.env.local scripts/eval-retrieval.ts",
+    "eval:live": "node scripts/eval-live.ts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^3.0.33",

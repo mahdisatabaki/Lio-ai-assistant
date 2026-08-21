@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { platformHint } from "./retrieve";
+import { platformHint, serviceHint } from "./retrieve";
 
 /**
  * Liara repeats the same guidance on every platform's page, so `mirror` and
@@ -24,5 +24,19 @@ describe("platformHint", () => {
 
   it("returns null when no framework is named", () => {
     expect(platformHint("آبجکت استوریج لیارا چیه؟")).toBeNull();
+  });
+});
+
+describe("serviceHint", () => {
+  it.each([
+    ["آبجکت استوریج لیارا چیه؟", "object-storage"],
+    ["Object Storage bucket", "object-storage"],
+    ["دیتابیس پستگرس لیارا", "dbaas"],
+  ])("detects the service in %s", (query, expected) => {
+    expect(serviceHint(query)).toBe(expected);
+  });
+
+  it("returns null when no service is named", () => {
+    expect(serviceHint("پروژه‌م بالا نمیاد")).toBeNull();
   });
 });

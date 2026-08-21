@@ -2,7 +2,7 @@ import "server-only";
 
 import { Pool } from "pg";
 
-import { requireDatabaseUrl } from "./env";
+import { requireDatabaseUrl } from "./env.ts";
 
 /**
  * PostgreSQL pool for the documentation index (`docs/TECH.md` 21).

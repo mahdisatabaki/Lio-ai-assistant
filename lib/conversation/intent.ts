@@ -1,3 +1,4 @@
+import { extractTechnicalTokens } from "@/lib/rag/tokens";
 import { collectNeeds } from "./plan";
 import type { ConversationState, Intent } from "./types";
 
@@ -191,6 +192,14 @@ export function detectIntent(message: string, state: ConversationState): Intent 
   // Failure language beats deployment language: "موقع دیپلوی خطا خوردم" is a
   // troubleshooting request, not a request to start deploying.
   if (looksLikeError(text)) return "troubleshooting";
+
+  // A question built around a literal — "آیا باید node_modules رو آپلود کنم؟" —
+  // is a documentation question even though it mentions deployment. Starting a
+  // guided journey there answers something the user did not ask.
+  if (looksLikeSideQuestion(text) && extractTechnicalTokens(text).length > 0) {
+    return "general";
+  }
+
   if (looksLikeDeployment(text)) return "deployment";
 
   // Describing a project and what it needs — "پروژه Next.js با postgres و

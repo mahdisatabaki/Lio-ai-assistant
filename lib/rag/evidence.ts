@@ -1,5 +1,5 @@
-import type { RetrievalResult } from "./retrieve";
-import type { RetrievedChunk } from "./types";
+import type { RetrievalResult } from "./retrieve.ts";
+import type { RetrievedChunk } from "./types.ts";
 
 /**
  * Decides whether retrieved evidence is strong enough to answer

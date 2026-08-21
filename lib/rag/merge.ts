@@ -1,4 +1,4 @@
-import type { Candidate, RetrievedChunk } from "./types";
+import type { Candidate, RetrievedChunk } from "./types.ts";
 
 /**
  * Reciprocal Rank Fusion of the semantic and lexical arms
