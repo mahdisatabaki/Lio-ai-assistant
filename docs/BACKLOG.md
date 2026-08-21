@@ -145,6 +145,57 @@ Dependencies:
 
 ---
 
+### BL-086 — Single-document evidence selection
+
+Status: DONE — retrieval still searches broadly, but candidates are grouped by
+source URL, scored deterministically, and collapsed to one winning document
+before generation (`lib/rag/select.ts`). The model receives `PrimaryEvidence`:
+one page, its passages, its citation. No selector model, no reranker.
+
+---
+
+### BL-087 — Deterministic diagnosis contract
+
+Status: DONE — troubleshooting returns one diagnosis, one action, one source.
+The prompt forbids listing competing causes; when a single page cannot support a
+diagnosis, one focused question replaces it.
+
+---
+
+### BL-088 — Focused answer generation
+
+Status: DONE — the first sentence answers the question. The prompt bans
+preamble, documentation dumps, and any instruction to go read the source: Lio
+has read it, so it reports the conclusion.
+
+---
+
+### BL-089 — Clarification and abstention hardening
+
+Status: DONE — weak evidence clarifies or abstains, never hedges across pages.
+An abstention now shows no source card, because a card beside "I could not
+confirm this" implies a page backed the statement.
+
+---
+
+### BL-090 — Response-quality eval suite
+
+Status: DONE — `lib/rag/select.test.ts` covers canonical-document priority,
+single-document guarantees, and determinism; `npm run eval:live` reports the
+displayed source count per case.
+
+---
+
+### BL-091 — Production tuning and regression verification
+
+Status: DONE — verified live. Every case returns exactly one source, one
+diagnosis, one action. 18/18 live evals and Source@5 = 5/5 unchanged. Two real
+defects found and fixed against production: a package-registry failure selected
+an unrelated page and invented `npm cache clean --force`, and an abstention
+displayed an irrelevant source.
+
+---
+
 # 4. Phase 1 — Persian / RTL Product Shell
 
 ## Goal

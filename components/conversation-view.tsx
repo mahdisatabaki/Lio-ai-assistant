@@ -106,7 +106,8 @@ export function ConversationView({
                 <MessageContent text={message.content} />
 
                 {message.plan ? <PlanCard plan={message.plan} /> : null}
-                {message.sources ? <SourceCards sources={message.sources} /> : null}
+                {/* Action first, then the source: what to do next matters more
+                    than where it came from. */}
                 {message.actions ? (
                   <ActionChips
                     actions={message.actions}
@@ -114,6 +115,7 @@ export function ConversationView({
                     disabled={isSending}
                   />
                 ) : null}
+                {message.sources ? <SourceCards sources={message.sources} /> : null}
               </div>
             </li>
           ))}

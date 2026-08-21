@@ -82,16 +82,16 @@ export function Composer({
         </button>
       </div>
 
+      {/*
+        Nothing permanent lives under the composer. Standing helper text is read
+        once and then becomes noise below every message; the placeholder already
+        says what to type. Only an active problem earns space here.
+      */}
       {tooLong ? (
         <p role="alert" className="mt-1.5 px-1 text-xs text-destructive">
-          متن خیلی طولانیه. لطفاً فقط بخش مهم لاگ یا خطا رو بفرست (حداکثر{" "}
-          {config.maxMessageChars.toLocaleString("fa-IR")} کاراکتر).
+          لاگ خیلی طولانیه. بخش مربوط به خطا و چند خط قبل و بعدش رو بفرست.
         </p>
-      ) : (
-        <p className="mt-1.5 px-1 text-[0.7rem] text-muted-foreground">
-          برای خط جدید Shift+Enter بزن. لاگ و خطا رو می‌تونی مستقیم بچسبونی.
-        </p>
-      )}
+      ) : null}
     </div>
   );
 }

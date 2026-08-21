@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { selectPrimaryEvidence } from "@/lib/rag/select";
+
 import { buildChatResponse, type ChatDeps } from "./respond";
 import { createInitialState } from "./state";
 import type { ConversationState } from "./types";
@@ -13,14 +15,15 @@ import type { ConversationState } from "./types";
  */
 
 function counted() {
-  const retrieve = vi.fn(async () => ({
-    chunks: [
-      {
-        id: 1,
-        sourcePath: "p.md",
+  const chunks = [
+    {
+      id: 1,
+      sourcePath: "p.md",
         sourceUrl: "https://docs.liara.ir/x/",
         title: "T",
         heading: null,
+        platform: null,
+        service: null,
         content: "c",
         score: 1,
         matchedBy: ["semantic"] as ("semantic" | "lexical")[],
@@ -32,12 +35,19 @@ function counted() {
         sourceUrl: "https://docs.liara.ir/y/",
         title: "T2",
         heading: null,
+        platform: null,
+        service: null,
         content: "c2",
         score: 0.9,
         matchedBy: ["semantic"] as ("semantic" | "lexical")[],
         matchedTokens: [],
       },
-    ],
+  ];
+
+  const retrieve = vi.fn(async () => ({
+    chunks,
+    // Real selector, so the budget is measured against production behavior.
+    evidence: selectPrimaryEvidence(chunks, []),
     tokens: [],
     hasExactMatch: false,
   }));
@@ -168,7 +178,7 @@ describe("bounded-cost paths", () => {
   });
 
   it("abstention spends the retrieval but never the generation", async () => {
-    const retrieve = vi.fn(async () => ({ chunks: [], tokens: [], hasExactMatch: false }));
+    const retrieve = vi.fn(async () => ({ chunks: [], evidence: null, tokens: [], hasExactMatch: false }));
     const generate = vi.fn(async () => "پاسخ");
 
     await buildChatResponse(

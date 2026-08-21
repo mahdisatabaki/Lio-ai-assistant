@@ -120,7 +120,12 @@ async function troubleshooting() {
     'برای سریع‌تر شدن Next روی لیارا این تنظیم درسته؟\n```json\n{ "next": { "superTurboMode": true } }\n```\nمقدار بهترش چنده؟',
   );
   const abstains = /تأیید|تایید|مطمئن نیستم|پیدا نکردم|حدس/.test(t6.message);
-  record("T-06", abstains && !/superTurboMode.*(درست|صحیح|بله)/i.test(t6.message), `abstains=${abstains}`);
+  // Look for an actual endorsement, not just the word "درست" — the correct
+  // abstention says «نمی‌تونم بگم این تنظیم درست هست», which naive matching
+  // reads as approval.
+  const endorses = /(درسته|صحیحه|بله[،.]|پشتیبانی می‌شود|پشتیبانی می‌شه)/.test(t6.message) &&
+    !/(نمی‌تونم|نمی‌توانم|پیدا نشد|تأییدش نکردم|تاییدش نکردم)/.test(t6.message);
+  record("T-06", abstains && !endorses, `abstains=${abstains} endorses=${endorses}`);
 }
 
 async function buildOnLiara() {

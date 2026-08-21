@@ -10,6 +10,8 @@ function candidate(id: number, overrides: Partial<Candidate> = {}): Candidate {
     sourceUrl: `https://docs.liara.ir/paas/nextjs/doc-${id}/`,
     title: `Doc ${id}`,
     heading: `Heading ${id}`,
+    platform: null,
+    service: null,
     content: `Content ${id}`,
     ...overrides,
   };

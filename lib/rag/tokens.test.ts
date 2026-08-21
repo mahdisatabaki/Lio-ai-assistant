@@ -102,3 +102,16 @@ describe("Persian product spellings", () => {
     expect(extractTechnicalTokens("سلام، حالت چطوره؟")).toEqual([]);
   });
 });
+
+describe("derived signals", () => {
+  it.each([
+    "npm ERR! network request to package registry failed",
+    "موقع نصب پکیج خطا می‌گیرم",
+  ])("maps a package-install failure to the mirror term: %s", (query) => {
+    expect(extractTechnicalTokens(query)).toContain("mirror");
+  });
+
+  it("does not invent it for an unrelated question", () => {
+    expect(extractTechnicalTokens("آبجکت استوریج چیه؟")).not.toContain("mirror");
+  });
+});

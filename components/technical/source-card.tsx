@@ -7,8 +7,8 @@ export function SourceCards({ sources }: { sources: SourceReference[] }) {
   if (sources.length === 0) return null;
 
   return (
-    <div className="mt-3 space-y-1.5">
-      <p className="text-xs text-muted-foreground">منبع:</p>
+    <div className="mt-4 space-y-1">
+      <p className="text-[0.7rem] text-muted-foreground">منبع</p>
       <ul className="space-y-1.5">
         {sources.map((source) => (
           <li key={source.url}>

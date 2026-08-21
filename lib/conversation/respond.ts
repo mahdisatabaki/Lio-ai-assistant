@@ -43,9 +43,22 @@ export type GenerationContext = {
   message: string;
   recentMessages: ChatRequest["recentMessages"];
   state: ConversationState;
-  chunks: RetrievalResult["chunks"];
+  evidence: RetrievalResult["evidence"];
   observations?: Observation[];
 };
+
+/** Phrasings the model uses when it declines to answer for lack of evidence. */
+const ABSTENTION_MARKERS = [
+  "نتونستم تأیید کنم",
+  "تأییدش نکردم",
+  "تاییدش نکردم",
+  "در مستندات لیارا وجود ندارد",
+  "در مستندات لیارا پیدا نشد",
+];
+
+function looksLikeAbstention(message: string): boolean {
+  return ABSTENTION_MARKERS.some((marker) => message.includes(marker));
+}
 
 export const ABSTENTION_MESSAGE =
   "این مورد رو از منبع قابل اتکای لیارا نتونستم تأیید کنم، پس نمی‌خوام حدس بزنم.";
@@ -90,7 +103,7 @@ function needsFrom(state: ConversationState, message: string): ProjectNeeds {
 async function groundedAnswer(
   deps: ChatDeps,
   systemPrompt: string,
-  context: Omit<GenerationContext, "chunks">,
+  context: Omit<GenerationContext, "evidence">,
   requestId: string,
 ): Promise<Pick<ChatResponse, "message" | "sources">> {
   let retrieval: RetrievalResult;
@@ -103,7 +116,7 @@ async function groundedAnswer(
     return { message: info.message };
   }
 
-  if (retrieval.chunks.length === 0 && retrieval.tokens.length === 0) {
+  if (!retrieval.evidence && retrieval.tokens.length === 0) {
     // An index that returns nothing for everything is an operational problem,
     // not a hard question. Say so instead of pretending to abstain.
     const decision = decideEvidence(retrieval, context.message);
@@ -118,10 +131,18 @@ async function groundedAnswer(
   try {
     const message = await deps.generate(systemPrompt, {
       ...context,
-      chunks: decision.chunks,
+      evidence: decision.evidence,
     });
-    // Sources come from retrieval metadata, never from the model's text.
-    return { message, sources: sourcesFrom(decision.chunks) };
+
+    // One source, from the one document the answer was built on. It comes from
+    // retrieval metadata, never from the model's text.
+    //
+    // Except when the answer is itself a refusal: a source card beside "I could
+    // not confirm this" reads as if that page backed the statement, when the
+    // point is that nothing did.
+    const sources = looksLikeAbstention(message) ? [] : sourcesFrom(decision.evidence);
+
+    return { message, sources };
   } catch (error) {
     const info = classifyError(error, "generation");
     console.error(failureLog(requestId, info, error));

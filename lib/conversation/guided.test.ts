@@ -8,7 +8,7 @@ import type { ConversationState, JourneyStepId } from "./types";
 /** Deterministic paths must never call AI, so these doubles also assert that. */
 function deps(): ChatDeps {
   return {
-    retrieve: vi.fn(async () => ({ chunks: [], tokens: [], hasExactMatch: false })),
+    retrieve: vi.fn(async () => ({ chunks: [], evidence: null, tokens: [], hasExactMatch: false })),
     generate: vi.fn(async () => "should not be called"),
   };
 }
@@ -136,7 +136,7 @@ describe("BL-063 — holding, errors, and side questions", () => {
 
   it("an error preserves the journey and its step", async () => {
     const d: ChatDeps = {
-      retrieve: vi.fn(async () => ({ chunks: [], tokens: [], hasExactMatch: false })),
+      retrieve: vi.fn(async () => ({ chunks: [], evidence: null, tokens: [], hasExactMatch: false })),
       generate: vi.fn(async () => "پاسخ"),
     };
     const response = await send(
@@ -153,7 +153,7 @@ describe("BL-063 — holding, errors, and side questions", () => {
 
   it("a side question preserves the journey, step, and app id", async () => {
     const d: ChatDeps = {
-      retrieve: vi.fn(async () => ({ chunks: [], tokens: [], hasExactMatch: false })),
+      retrieve: vi.fn(async () => ({ chunks: [], evidence: null, tokens: [], hasExactMatch: false })),
       generate: vi.fn(async () => "پاسخ"),
     };
     const response = await send(

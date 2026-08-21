@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { RetrievalResult } from "@/lib/rag/retrieve";
+import { selectPrimaryEvidence } from "@/lib/rag/select";
 import type { RetrievedChunk } from "@/lib/rag/types";
 
 import {
@@ -26,6 +27,8 @@ function chunk(overrides: Partial<RetrievedChunk> = {}): RetrievedChunk {
     sourceUrl: "https://docs.liara.ir/paas/nextjs/how-tos/deploy-app/",
     title: "استقرار برنامه Next.js",
     heading: "فایل liara.json",
+    platform: null,
+    service: null,
     content: "برای اجرای برنامه به اسکریپت start نیاز است.",
     score: 0.9,
     matchedBy: ["semantic"],
@@ -35,8 +38,15 @@ function chunk(overrides: Partial<RetrievedChunk> = {}): RetrievedChunk {
 }
 
 function retrieval(overrides: Partial<RetrievalResult> = {}): RetrievalResult {
+  const chunks = overrides.chunks ?? [
+    chunk(),
+    chunk({ id: 2, sourceUrl: "https://docs.liara.ir/paas/liarajson/" }),
+  ];
+
   return {
-    chunks: [chunk(), chunk({ id: 2, sourceUrl: "https://docs.liara.ir/paas/liarajson/" })],
+    chunks,
+    // Derived with the real selector so the double cannot drift from production.
+    evidence: selectPrimaryEvidence(chunks, overrides.tokens ?? []),
     tokens: [],
     hasExactMatch: false,
     ...overrides,
@@ -74,7 +84,7 @@ describe("BL-040 — grounded general answers", () => {
     await ask("سؤال درباره دیتابیس لیارا و نحوه اتصال به آن", deps({ generate }));
 
     const context = generate.mock.calls[0]![1];
-    expect(context.chunks).toHaveLength(2);
+    expect(context.evidence?.selectedChunks.length).toBeGreaterThan(0);
   });
 
   it("passes conversation state so known facts are not asked again", async () => {
@@ -100,10 +110,13 @@ describe("BL-041 — sources, clarification, abstention", () => {
     );
     const response = await ask("آبجکت استوریج لیارا دقیقاً چه کاربردی داره؟", deps({ generate }));
 
-    expect(response.sources?.map((s) => s.url)).toEqual([
+    // Exactly one source now: the single document the answer was built on
+    // (BL-086). Several cards invited the reader to go compare pages, which is
+    // the job this product exists to do for them.
+    expect(response.sources).toHaveLength(1);
+    expect(response.sources?.[0].url).toBe(
       "https://docs.liara.ir/paas/nextjs/how-tos/deploy-app/",
-      "https://docs.liara.ir/paas/liarajson/",
-    ]);
+    );
     expect(response.sources?.some((s) => s.url.includes("evil"))).toBe(false);
   });
 

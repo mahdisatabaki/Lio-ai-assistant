@@ -4,8 +4,9 @@ import { getPool } from "../server/db.ts";
 
 import { embedQuery, toVectorLiteral } from "./embed.ts";
 import { fuseCandidates } from "./merge.ts";
+import { selectPrimaryEvidence } from "./select.ts";
 import { extractTechnicalTokens } from "./tokens.ts";
-import type { Candidate, RetrievedChunk } from "./types.ts";
+import type { Candidate, PrimaryEvidence, RetrievedChunk } from "./types.ts";
 
 /**
  * Liara documents the same guidance once per platform, so `mirror` matches the
@@ -65,6 +66,8 @@ type Row = {
   source_url: string;
   title: string;
   heading: string | null;
+  platform: string | null;
+  service: string | null;
   content: string;
   score: string | null;
 };
@@ -76,6 +79,8 @@ function toCandidate(row: Row, matchedTokens?: string[]): Candidate {
     sourceUrl: row.source_url,
     title: row.title,
     heading: row.heading,
+    platform: row.platform,
+    service: row.service,
     content: row.content,
     rawScore: row.score === null ? undefined : Number(row.score),
     matchedTokens,
@@ -103,7 +108,7 @@ async function semanticSearch(
 
   const run = async (onlyService: string | null) => {
     const { rows } = await getPool().query<Row>(
-      `SELECT id, source_path, source_url, title, heading, content,
+      `SELECT id, source_path, source_url, title, heading, platform, service, content,
               1 - (embedding <=> $1::vector) AS score
          FROM doc_chunks
         ${onlyService ? "WHERE service = $3" : ""}
@@ -175,7 +180,7 @@ async function lexicalSearch(
   const platformBoost = boosts;
 
   const { rows } = await getPool().query<Row>(
-    `SELECT id, source_path, source_url, title, heading, content,
+    `SELECT id, source_path, source_url, title, heading, platform, service, content,
             (${matchCount}) ${platformBoost} AS score
        FROM doc_chunks
       WHERE (${matchCount}) > 0
@@ -197,7 +202,10 @@ async function lexicalSearch(
 }
 
 export type RetrievalResult = {
+  /** Every fused candidate, across documents. Diagnostic, not what the model sees. */
   chunks: RetrievedChunk[];
+  /** The one document generation is allowed to use (BL-086). */
+  evidence: PrimaryEvidence | null;
   /** Technical tokens the query offered to the lexical arm. */
   tokens: string[];
   /** True when at least one chunk matched a literal token — strong evidence. */
@@ -215,16 +223,20 @@ export async function retrieveDocumentation(
   finalCount: number = FINAL_CHUNKS,
 ): Promise<RetrievalResult> {
   const tokens = extractTechnicalTokens(query);
+  const platform = platformHint(query);
+  const service = serviceHint(query);
 
   const [semantic, lexical] = await Promise.all([
-    semanticSearch(query, SEMANTIC_CANDIDATES, serviceHint(query)),
-    lexicalSearch(tokens, LEXICAL_CANDIDATES, platformHint(query), serviceHint(query)),
+    semanticSearch(query, SEMANTIC_CANDIDATES, service),
+    lexicalSearch(tokens, LEXICAL_CANDIDATES, platform, service),
   ]);
 
   const chunks = fuseCandidates(semantic, lexical, finalCount);
+  const evidence = selectPrimaryEvidence(chunks, tokens, platform, service);
 
   return {
     chunks,
+    evidence,
     tokens,
     hasExactMatch: chunks.some((chunk) => chunk.matchedBy.includes("lexical")),
   };

@@ -83,6 +83,8 @@ export function fuseCandidates(
       sourceUrl: candidate.sourceUrl,
       title: candidate.title,
       heading: candidate.heading,
+      platform: candidate.platform,
+      service: candidate.service,
       content: candidate.content,
       score,
       // Sorted so the field is stable across runs.

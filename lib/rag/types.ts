@@ -20,6 +20,8 @@ export type RetrievedChunk = {
   sourceUrl: string;
   title: string;
   heading: string | null;
+  platform: string | null;
+  service: string | null;
   content: string;
   /** Fused rank score. Higher is better. Comparable only within one query. */
   score: number;
@@ -36,8 +38,34 @@ export type Candidate = {
   sourceUrl: string;
   title: string;
   heading: string | null;
+  platform: string | null;
+  service: string | null;
   content: string;
   /** Raw arm score, kept for inspection. Not comparable across arms. */
   rawScore?: number;
   matchedTokens?: string[];
+};
+
+/**
+ * The single documentation page an answer is built from.
+ *
+ * Retrieval still looks broadly across the corpus, but generation sees exactly
+ * one document. Handing the model several pages made it hedge — it would list
+ * competing causes and cite four sources rather than commit to the one the
+ * evidence actually supports. Choosing the document deterministically, before
+ * generation, is what makes a decisive answer possible.
+ */
+export type PrimaryEvidence = {
+  /** Stable document identity: the source URL, not a chunk id. */
+  documentId: string;
+  sourceUrl: string;
+  sourcePath: string;
+  title: string;
+  platform: string | null;
+  service: string | null;
+  /** Chunks from this document only, best first. */
+  selectedChunks: RetrievedChunk[];
+  documentScore: number;
+  /** Why this document won, for logs and eval output. */
+  evidenceReason: string;
 };

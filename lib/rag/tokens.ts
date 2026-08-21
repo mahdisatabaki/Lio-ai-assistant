@@ -65,6 +65,19 @@ const LIARA_TERMS = [
 ];
 
 /**
+ * Query shapes whose documented Liara answer lives under a specific term.
+ *
+ * A user reporting `npm ERR! network request to package registry failed` never
+ * types the word "mirror", yet Liara's documented guidance for package-install
+ * failures is the mirror opt-out on the deployment page. Without this the
+ * selector picked an unrelated error page and the model filled the gap with
+ * generic advice like `npm cache clean --force`, which Liara does not document.
+ */
+const DERIVED_TERM_SIGNALS: [RegExp, string][] = [
+  [/npm\s*err|package\s*registry|registry\s*failed|نصب\s*پکیج|مخزن\s*پکیج/i, "mirror"],
+];
+
+/**
  * Persian spellings of the same products, mapped to the English token.
  *
  * The documentation is written with the English product names, so a user asking
@@ -139,6 +152,9 @@ export function extractTechnicalTokens(text: string): string[] {
     if (lowered.includes(term)) add(term);
   }
   for (const [pattern, term] of PERSIAN_TERM_ALIASES) {
+    if (pattern.test(text)) add(term);
+  }
+  for (const [pattern, term] of DERIVED_TERM_SIGNALS) {
     if (pattern.test(text)) add(term);
   }
 

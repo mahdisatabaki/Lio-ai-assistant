@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { RetrievalResult } from "@/lib/rag/retrieve";
+import { selectPrimaryEvidence } from "@/lib/rag/select";
 import type { RetrievedChunk } from "@/lib/rag/types";
 
 import { observe } from "./diagnose";
@@ -22,6 +23,8 @@ function chunk(overrides: Partial<RetrievedChunk> = {}): RetrievedChunk {
     sourceUrl: "https://docs.liara.ir/paas/nextjs/fix-common-errors/econnreset/",
     title: "رفع خطای ECONNRESET",
     heading: null,
+    platform: null,
+    service: null,
     content: "افزایش منابع برنامه و راه‌اندازی مجدد.",
     score: 1,
     matchedBy: ["lexical", "semantic"],
@@ -35,6 +38,7 @@ function deps(overrides: Partial<ChatDeps> = {}): ChatDeps {
     retrieve: vi.fn(
       async (): Promise<RetrievalResult> => ({
         chunks: [chunk()],
+        evidence: selectPrimaryEvidence([chunk()], ["ECONNRESET"]),
         tokens: ["ECONNRESET"],
         hasExactMatch: true,
       }),

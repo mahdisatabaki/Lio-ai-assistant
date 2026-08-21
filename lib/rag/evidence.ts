@@ -1,25 +1,31 @@
 import type { RetrievalResult } from "./retrieve.ts";
-import type { RetrievedChunk } from "./types.ts";
+import type { PrimaryEvidence } from "./types.ts";
 
 /**
- * Decides whether retrieved evidence is strong enough to answer
- * (`docs/TECH.md` 17).
+ * Decides whether one document carries enough evidence to answer
+ * (`docs/TECH.md` 17, BL-089).
  *
- * The thresholds here are starting values, not tuned constants. `docs/TECH.md`
- * is explicit that the real relevance threshold must come from EVALS against a
- * live index, which has not been possible yet. They are collected in one place
- * so tuning later is a single edit.
+ * The decision is now about a single document rather than a pile of chunks. If
+ * the winning page does not support an answer, the fix is never to widen the
+ * net and let the model hedge across pages — it is to ask one focused question
+ * or to say plainly that we could not confirm it.
  */
 
 export const EVIDENCE_THRESHOLDS = {
-  /** A literal token match is the strongest signal the MVP has. */
-  minChunksForExactMatch: 1,
-  /** Without an exact match, more semantic agreement is required. */
-  minChunksForSemantic: 2,
+  /**
+   * Minimum score for the winning document.
+   *
+   * The selector already folds rank, literal-token hits, and platform/service
+   * agreement into one number, so a second chunk-count rule would double-count
+   * the same signal and abstain on good single-passage answers. A top-ranked
+   * document scores 10 and a rank-3 document with nothing else going for it
+   * scores about 3.3 — this sits between them.
+   */
+  minDocumentScore: 4,
 };
 
 export type EvidenceDecision =
-  | { kind: "answer"; chunks: RetrievedChunk[] }
+  | { kind: "answer"; evidence: PrimaryEvidence }
   | { kind: "clarify" }
   | { kind: "abstain" };
 
@@ -35,34 +41,32 @@ export function decideEvidence(
   result: RetrievalResult,
   query: string,
 ): EvidenceDecision {
-  const { chunks, hasExactMatch } = result;
-
-  if (hasExactMatch && chunks.length >= EVIDENCE_THRESHOLDS.minChunksForExactMatch) {
-    return { kind: "answer", chunks };
-  }
-
-  if (chunks.length >= EVIDENCE_THRESHOLDS.minChunksForSemantic) {
-    return { kind: "answer", chunks };
-  }
+  const { evidence, hasExactMatch } = result;
 
   const looksUnderspecified = query.trim().length < 40 && result.tokens.length === 0;
+
+  if (!evidence) return looksUnderspecified ? { kind: "clarify" } : { kind: "abstain" };
+
+  // A literal token match is the strongest signal the MVP has, so it answers on
+  // its own; otherwise the document has to clear the score bar.
+  if (hasExactMatch || evidence.documentScore >= EVIDENCE_THRESHOLDS.minDocumentScore) {
+    return { kind: "answer", evidence };
+  }
+
   return looksUnderspecified ? { kind: "clarify" } : { kind: "abstain" };
 }
 
-/** Sources for the UI: retrieval metadata only, deduplicated by URL. */
-export function sourcesFrom(chunks: RetrievedChunk[]) {
-  const seen = new Set<string>();
-  const sources = [];
+/**
+ * The source shown to the user: exactly one, from the document the answer was
+ * built on.
+ *
+ * Several cards invited the reader to go and compare pages themselves, which is
+ * the job the product exists to do for them.
+ */
+export function sourcesFrom(evidence: PrimaryEvidence | null) {
+  if (!evidence) return [];
 
-  for (const chunk of chunks) {
-    if (seen.has(chunk.sourceUrl)) continue;
-    seen.add(chunk.sourceUrl);
-    sources.push({
-      title: chunk.title,
-      heading: chunk.heading ?? undefined,
-      url: chunk.sourceUrl,
-    });
-  }
+  const heading = evidence.selectedChunks[0]?.heading ?? undefined;
 
-  return sources;
+  return [{ title: evidence.title, heading, url: evidence.sourceUrl }];
 }

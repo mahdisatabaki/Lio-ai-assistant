@@ -6,7 +6,7 @@ import { createInitialState } from "./state";
 import type { ConversationState } from "./types";
 
 const deps: ChatDeps = {
-  retrieve: vi.fn(async () => ({ chunks: [], tokens: [], hasExactMatch: false })),
+  retrieve: vi.fn(async () => ({ chunks: [], evidence: null, tokens: [], hasExactMatch: false })),
   generate: vi.fn(async () => "should not be called"),
 };
 

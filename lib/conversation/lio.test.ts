@@ -8,6 +8,8 @@ import {
   TROUBLESHOOTING_SYSTEM_PROMPT,
 } from "@/lib/ai/prompts";
 
+import { selectPrimaryEvidence } from "@/lib/rag/select";
+
 import { failure } from "./failures";
 import { buildChatResponse, type ChatDeps } from "./respond";
 import { createInitialState } from "./state";
@@ -27,7 +29,7 @@ const PLAYFUL_EMOJI = /[😀-🙏✨🎉🚀👋🔥💪😉🙂👍]/u;
 
 function deps(overrides: Partial<ChatDeps> = {}): ChatDeps {
   return {
-    retrieve: vi.fn(async () => ({ chunks: [], tokens: [], hasExactMatch: false })),
+    retrieve: vi.fn(async () => ({ chunks: [], evidence: null, tokens: [], hasExactMatch: false })),
     generate: vi.fn(async () => "پاسخ"),
     ...overrides,
   };
@@ -166,5 +168,37 @@ describe("H — the approved assets exist", () => {
     expect(readFileSync(join("components", "conversation-view.tsx"), "utf8")).toMatch(
       /alt=""/,
     );
+  });
+});
+
+describe("an abstention shows no source", () => {
+  it("drops the card when the model declines for lack of evidence", async () => {
+    const d = deps({
+      generate: vi.fn(async () => "کلید «superTurboMode» در مستندات لیارا پیدا نشد و تأییدش نکردم."),
+      retrieve: vi.fn(async () => {
+        const chunk = {
+          id: 1,
+          sourcePath: "p.md",
+          sourceUrl: "https://docs.liara.ir/unrelated/",
+          title: "صفحه نامرتبط",
+          heading: null,
+          platform: null,
+          service: null,
+          content: "متن",
+          score: 1,
+          matchedBy: ["semantic"] as ("semantic" | "lexical")[],
+          matchedTokens: [],
+        };
+        return {
+          chunks: [chunk],
+          evidence: selectPrimaryEvidence([chunk], []),
+          tokens: [],
+          hasExactMatch: false,
+        };
+      }),
+    });
+
+    const reply = await send("آیا کلید superTurboMode پشتیبانی می‌شود؟", createInitialState(), d);
+    expect(reply.sources ?? []).toEqual([]);
   });
 });
