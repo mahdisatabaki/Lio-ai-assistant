@@ -144,35 +144,22 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the production runbook.
 
 ## Live deployment
 
-Deployed to Liara PaaS under the team **لیارا** as **`liara-ai-assistant`**:
+Running on Liara PaaS under the team **لیارا**:
 
 ```text
 https://liara-ai-assistant.liara.run
 ```
 
-Deployment configuration is pinned to the team in `liara.json` (`team-id` plus
-the team app id), so a stray `liara deploy` cannot land in a personal account.
+Verified: the root page returns 200 and `/api/health` returns
+`{"status":"ok","database":"ok"}`, reaching PostgreSQL over Liara's private
+network. Deployment is pinned to the team in `liara.json` (`team-id` plus app
+id), so a stray `liara deploy` cannot land in a personal account.
 
-Status: the application is built, released, and running — its production logs
-show Next.js ready and serving. Grounded answers are not live yet: the team has
-no credit, so the PostgreSQL DBaaS holding the knowledge index could not be
-provisioned. Without it the assistant correctly reports that it cannot reach its
-sources instead of answering ungrounded.
-
-### Liara connectivity behind a VPN
-
-Liara refuses foreign VPN exit IPs. Its services span several Iranian netblocks —
-`185.208.181.0/24` (console, API, docs), `185.142.159.0/24` and `62.60.220.0/24`
-(deployed apps) — and routing those out the physical interface fixes access while
-leaving the VPN up for everything else. From an **elevated** PowerShell, with
-`<gateway>`/`<ifIndex>` from `Get-NetRoute -DestinationPrefix 0.0.0.0/0`:
-
-```powershell
-New-NetRoute -DestinationPrefix 185.142.159.0/24 -InterfaceIndex <ifIndex> -NextHop <gateway> -RouteMetric 1
-```
-
-Re-check them after changing Wi-Fi networks: the routes pin a gateway, so a new
-network silently blackholes them while host-specific `/32` routes keep working.
+Grounded answers are not live yet: the Liara AI workspace API key is issued
+through the console only, and until it is set the assistant reports that it
+cannot reach its sources rather than answering ungrounded. The deterministic
+halves — guided deployment, Build on Liara planning, and clarification on
+ambiguous errors — are fully live and make no model call.
 
 ## Demo
 

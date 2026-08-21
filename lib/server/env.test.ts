@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { missingServerEnvVars, requireServerEnv } from "@/lib/server/env";
+import {
+  missingServerEnvVars,
+  requireDatabaseUrl,
+  requireServerEnv,
+} from "@/lib/server/env";
 
 const REQUIRED = [
   "DATABASE_URL",
@@ -86,5 +90,26 @@ describe("missingServerEnvVars", () => {
   it("reports nothing when everything is configured", () => {
     setAll();
     expect(missingServerEnvVars()).toEqual([]);
+  });
+});
+
+describe("requireDatabaseUrl", () => {
+  it("returns the URL without demanding AI configuration", () => {
+    process.env.DATABASE_URL = "postgresql://u:p@h:5432/db";
+    expect(requireDatabaseUrl()).toBe("postgresql://u:p@h:5432/db");
+  });
+
+  it("throws naming only DATABASE_URL when it is missing", () => {
+    expect(() => requireDatabaseUrl()).toThrow(/DATABASE_URL/);
+  });
+
+  it("does not leak the URL in its error", () => {
+    process.env.DATABASE_URL = "   ";
+    try {
+      requireDatabaseUrl();
+      expect.unreachable("should have thrown");
+    } catch (error) {
+      expect(String(error)).not.toContain("postgresql://");
+    }
   });
 });

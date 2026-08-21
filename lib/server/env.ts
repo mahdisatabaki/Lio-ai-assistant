@@ -40,6 +40,25 @@ export function missingServerEnvVars(): RequiredVar[] {
 }
 
 /**
+ * Reads just the database URL.
+ *
+ * Separate from `requireServerEnv` on purpose: the health check reports database
+ * reachability independently of AI configuration, and demanding the AI key here
+ * would make an unset key look like a database outage.
+ */
+export function requireDatabaseUrl(): string {
+  const value = process.env.DATABASE_URL?.trim();
+  if (!value) {
+    throw new Error(
+      "Missing required environment variable: DATABASE_URL. " +
+        "Copy .env.example to .env.local and provide values. " +
+        "See docs/TECH.md section 34.",
+    );
+  }
+  return value;
+}
+
+/**
  * Reads the required server configuration, or throws naming everything that is
  * missing.
  *

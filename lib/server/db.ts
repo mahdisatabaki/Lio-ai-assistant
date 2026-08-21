@@ -2,7 +2,7 @@ import "server-only";
 
 import { Pool } from "pg";
 
-import { requireServerEnv } from "./env";
+import { requireDatabaseUrl } from "./env";
 
 /**
  * PostgreSQL pool for the documentation index (`docs/TECH.md` 21).
@@ -25,7 +25,7 @@ export function getPool(): Pool {
   if (existing) return existing;
 
   const pool = new Pool({
-    connectionString: requireServerEnv().databaseUrl,
+    connectionString: requireDatabaseUrl(),
     // Conservative for a single MVP instance; Liara DBaaS connection limits are
     // modest and nothing here is throughput-bound.
     max: 5,
