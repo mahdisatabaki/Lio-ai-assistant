@@ -170,6 +170,8 @@ and visible in production logs (the clarification path completes in ~1 ms).
 | Retrieval Source@5 | **5/5 (100%)**, each ranked first |
 | DEMO-01 | **PASS** |
 | Tests | **398** |
+| Live release | commit `2d9616e` (cards, onboarding, modes) |
+| Pending deploy | commit `0b42ac7` (compact tiles, anchored composer) |
 
 ---
 
@@ -243,8 +245,13 @@ https://github.com/mahdisatabaki/liara-hackathon
 - [x] tests pass (398)
 - [x] build passes
 - [x] GitHub latest commit pushed
-- [ ] **Repository accessible to challenge judges** — verify visibility; not changed automatically
+- [ ] **Repository accessible to challenge judges** — currently private; not changed automatically
 - [x] Live URL ready to submit
+- [ ] **Deploy commit `0b42ac7`** — compact feature tiles and the anchored composer
+      are verified locally but not live; Liara's daily deploy quota is exhausted
+- [ ] **Add route for `185.142.159.0/24`** — the app moved to that netblock, so the
+      public URL is unreachable from the development machine until the split-tunnel
+      route is added (needs Administrator)
 
 ---
 

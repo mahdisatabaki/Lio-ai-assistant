@@ -5,6 +5,11 @@ to a deployed app — without making you search the documentation.**
 
 ### ▶ Live demo — https://liara-ai-assistant.liara.run
 
+> **Note:** the live deployment currently runs commit `2d9616e`. Commit `0b42ac7`
+> (compact feature tiles and a bottom-anchored composer) is verified locally at
+> 1280/768/375 but not yet deployed — Liara's daily deployment quota was exhausted
+> by two builder-side timeouts. Everything else described below is live.
+
 📄 [Challenge submission](docs/CHALLENGE_SUBMISSION.md) · 🎬 [Demo script](docs/DEMO_SCRIPT.md)
 
 ---
@@ -202,7 +207,7 @@ changed.
 | Live evals | 18/18 pass |
 | Retrieval | Expected Source @5 = 5/5, each ranked first |
 | Answer shape | one document, one diagnosis, one action, one source |
-| Tests | 371 |
+| Tests | 398 |
 
 Lio's personality is a behavior contract in the system prompt, not a label:
 `docs/LIO_CHARACTER_GUIDE.md` and its companions are the source of truth, and
