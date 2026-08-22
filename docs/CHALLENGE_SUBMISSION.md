@@ -125,8 +125,8 @@ The model is never asked to choose between sources.
 | Corpus | official `liara-cloud/docs`, `public/llms/**/*.md` |
 | Files indexed | **1,143** |
 | Chunks indexed | **5,441** |
-| Embedding model | `openai/text-embedding-3-small` |
-| Dimensions | **1536** (probed from the live model, not assumed) |
+| Embedding model | `intfloat/multilingual-e5-large` |
+| Dimensions | **1024** (probed from the live model, not assumed) |
 | Chat model | `openai/gpt-4o-mini` |
 | Retrieval | semantic (pgvector) + exact technical token, RRF, platform/service weighting |
 | Evidence | deterministic single-document selection |
@@ -164,7 +164,7 @@ and visible in production logs (the clarification path completes in ~1 ms).
 | URL | https://liara-ai-assistant.liara.run |
 | Health | `{"status":"ok","database":"ok"}` |
 | PaaS | Liara Next.js, team **لیارا** |
-| PostgreSQL | 16.14 · pgvector 0.8.1 · `vector(1536)` |
+| PostgreSQL | 16.14 · pgvector 0.8.1 · `vector(1024)` |
 | Liara AI | workspace `liara-assistant` |
 | Core EVALS | **18/18 PASS** |
 | Retrieval Source@5 | **5/5 (100%)**, each ranked first |

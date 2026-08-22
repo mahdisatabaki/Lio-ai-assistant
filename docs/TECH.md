@@ -116,11 +116,11 @@ unless a later approved requirement proves they are necessary.
 `LIARA_AI_API_KEY` and exposes `chatModel()` and `embeddingModel()`, both named
 only from configuration.
 
-Nothing calls a chat model yet — answer generation is BL-040. Embeddings are
-called by the indexer and by query-time retrieval.
+Answer generation (BL-040) uses `chatModel()`; embeddings are called by the
+indexer and by query-time retrieval.
 
-**Not yet verified against live Liara AI.** The development machine's VPN exit
-IP is refused by Liara, so no request has reached the API. See BL-002.
+**Verified against live Liara AI in production.** Both chat and embeddings have
+served real traffic from the deployed application.
 
 ## 2.3 Database
 
@@ -151,6 +151,47 @@ LIARA_EMBEDDING_MODEL
 ```
 
 Do not hardcode a provider-specific identifier throughout the codebase.
+
+### Embedding model change (production incident)
+
+The MVP indexed on `openai/text-embedding-3-small` (1536 dimensions). Liara AI
+later began rejecting **all three** OpenAI embedding models on the `standard`
+plan with `Unsupported embedding model`, while continuing to list them in that
+plan's catalogue and to serve chat normally. The Gemini embedding models are
+gated to `pro`.
+
+The production embedding model is now:
+
+```text
+intfloat/multilingual-e5-large   # 1024 dimensions
+```
+
+Consequences, all handled:
+
+- pgvector fixes a column's dimension at creation, so `embedding` was rebuilt as
+  `vector(1024)` rather than altered, and the corpus was fully re-embedded —
+  vectors from a different model share no space and cannot be mixed.
+- The model id is environment-configurable, so production switched with
+  `liara env set` and a restart; no redeploy was needed.
+- Being multilingual, e5-large is a defensible fit for Persian queries, but
+  retrieval quality was re-validated against the EVALS retrieval suite rather
+  than assumed.
+
+**Input truncation.** e5-large has a 512-token window and truncates silently
+rather than erroring. Measured against Persian prose the cut falls between 2,000
+and 2,600 characters — confirmed by embedding two long inputs that differ only in
+their tails and getting byte-identical vectors back.
+
+The corpus mostly fits: median chunk is 287 characters, p90 is 1,649, and only
+**7.5%** exceed 2,000. Those largest chunks lose their tails. Chunk sizes were
+left alone rather than retuned, because the measure that matters — Expected
+Source@5 — still returns **5/5 with every expected source in the top two**. Retune
+`docs/TECH.md` 13.3 sizes only if that gate later degrades.
+
+While the outage lasted, the application behaved as designed: it reported that
+documentation search was unavailable and declined to answer, rather than falling
+back on model memory. Deterministic journeys were unaffected — a real-world
+confirmation of the safe-failure design.
 
 ## 2.5 Chat Model
 

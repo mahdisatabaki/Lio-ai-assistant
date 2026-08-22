@@ -203,7 +203,7 @@ changed.
 | | |
 |---|---|
 | Chat model | `openai/gpt-4o-mini` |
-| Embedding model | `openai/text-embedding-3-small` (1536 dimensions) |
+| Embedding model | `intfloat/multilingual-e5-large` (1024 dimensions) |
 | Live evals | 18/18 pass |
 | Retrieval | Expected Source @5 = 5/5, each ranked first |
 | Answer shape | one document, one diagnosis, one action, one source |
