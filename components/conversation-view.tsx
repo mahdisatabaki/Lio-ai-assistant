@@ -102,7 +102,7 @@ export function ConversationView({
         ) : null}
       </header>
 
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-4">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-4 pb-6">
         <ul className="space-y-4">
           {messages.map((message) => (
             <li
@@ -178,9 +178,22 @@ export function ConversationView({
         <div ref={endRef} />
       </main>
 
-      <div className="sticky bottom-0 border-t border-border bg-background/95 backdrop-blur">
+      {/*
+        Anchored to the bottom of the viewport. `mt-auto` keeps it pinned down
+        even when the conversation is short, so it never floats mid-page, and the
+        safe-area inset keeps the send control clear of the home indicator on
+        phones. The message area's bottom padding plus this surface mean the last
+        reply is always scrollable clear of the bar.
+      */}
+      <div
+        className="sticky bottom-0 z-10 mt-auto border-t bg-background/95 backdrop-blur"
+        style={{
+          borderColor: theme?.border,
+          paddingBottom: "env(safe-area-inset-bottom)",
+        }}
+      >
         <div className="mx-auto w-full max-w-2xl px-4 py-3">
-          <Composer onSubmit={onSubmit} disabled={isSending} />
+          <Composer onSubmit={onSubmit} disabled={isSending} accent={theme?.accent} />
         </div>
       </div>
     </div>

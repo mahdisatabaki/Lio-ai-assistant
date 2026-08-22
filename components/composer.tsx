@@ -21,12 +21,16 @@ export function Composer({
   disabled,
   autoFocus,
   className,
+  accent,
 }: {
   onSubmit: (text: string) => void;
   disabled?: boolean;
   autoFocus?: boolean;
   className?: string;
+  /** Feature-mode colour, used only for the focus ring — never the field. */
+  accent?: string;
 }) {
+  const [focused, setFocused] = useState(false);
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -53,6 +57,8 @@ export function Composer({
           "flex items-end gap-2 rounded-2xl border bg-background p-2 transition-colors focus-within:border-ring",
           tooLong ? "border-destructive" : "border-border",
         )}
+        // The field stays neutral; only the focused edge picks up the mode.
+        style={accent && focused && !tooLong ? { borderColor: accent } : undefined}
       >
         <textarea
           ref={textareaRef}
@@ -61,6 +67,8 @@ export function Composer({
           rows={1}
           disabled={disabled}
           onChange={(event) => setValue(event.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           onKeyDown={(event) => {
             if (event.key === "Enter" && !event.shiftKey) {
               event.preventDefault();

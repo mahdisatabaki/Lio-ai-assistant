@@ -70,23 +70,31 @@ export function HomeScreen({ onSubmit }: { onSubmit: (text: string) => void }) {
         لیو چطور کمکت کنه؟
       </h2>
 
-      {/* Stacked on the narrowest screens so each card keeps its square feel. */}
-      <div className="mt-3 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
+      {/*
+        Two compact tiles, side by side at every width. The wrapper caps the pair
+        at ~half the content column, which puts each tile near a quarter of it on
+        desktop and keeps the group centred instead of stretched. At 375px the
+        same two columns still fit comfortably.
+      */}
+      <div className="mx-auto mt-3 grid w-full max-w-sm grid-cols-2 gap-3">
         {FEATURES.map(({ id, title, send, Icon, theme }) => (
           <button
             key={id}
             type="button"
             onClick={() => onSubmit(send)}
             style={{ backgroundColor: theme.soft, borderColor: theme.border }}
-            className="group flex aspect-[4/3] flex-col items-center justify-center gap-3 rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none min-[420px]:aspect-square"
+            className="group flex aspect-square flex-col items-center justify-center gap-2.5 rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sm:gap-3 sm:p-4"
           >
             <Icon
               aria-hidden="true"
               strokeWidth={1.5}
-              className="size-10 transition-transform group-hover:scale-105 sm:size-12"
+              className="size-8 transition-transform group-hover:scale-105 sm:size-9"
               style={{ color: theme.accent }}
             />
-            <span className="text-sm font-semibold sm:text-base" style={{ color: theme.ink }}>
+            <span
+              className="text-center text-xs font-semibold leading-5 sm:text-sm"
+              style={{ color: theme.ink }}
+            >
               {title}
             </span>
           </button>

@@ -171,6 +171,31 @@ permanently for a step that runs occasionally.
 
 ---
 
+## 3.1 Reaching Liara from behind a VPN
+
+Liara refuses foreign VPN exit IPs. Its services live in `185.208.181.0/24`
+(console, API, docs, and deployed `*.liara.run` apps), `185.142.159.0/24`, and
+`62.60.220.0/24`. Routing those three prefixes out the physical Iranian interface
+fixes it while leaving the VPN up for everything else. From an **elevated**
+PowerShell, with `<gateway>` and `<ifIndex>` from
+`Get-NetRoute -DestinationPrefix 0.0.0.0/0` for the physical adapter:
+
+```powershell
+New-NetRoute -DestinationPrefix 185.208.181.0/24 -InterfaceIndex <ifIndex> -NextHop <gateway> -RouteMetric 1
+```
+
+Repeat for the other two prefixes.
+
+**These routes pin a gateway.** Changing Wi-Fi network silently blackholes every
+Liara host, and it has happened in both directions here
+(`10.106.87.x` → `192.168.1.x` and back). The symptom is a `liara` command
+failing with `Timeout awaiting 'request' for 10000ms` while the deployed app is
+perfectly healthy from the outside. Diagnose by comparing the gateway in
+`Get-NetRoute -DestinationPrefix 0.0.0.0/0` against the one the `/24` routes use;
+if they differ, remove and re-add the routes on the current gateway.
+
+---
+
 ## 4. Operational notes
 
 - **Logs**: structured JSON to stdout, visible in Liara's application logs. They

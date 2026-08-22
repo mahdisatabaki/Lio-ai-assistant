@@ -238,8 +238,16 @@ Status: DONE — verified on production.
   purple one, each with a visible Persian label so colour is never the only cue.
 - **BL-097** Lio's answer is white and bordered; the user's message is slate.
   Mode colours mark what the conversation is doing, never who is speaking.
-- **BL-098** Verified at 375/768/1280: cards stack below 420px, no page overflow,
-  composer never covered, technical blocks scroll internally.
+- **BL-098** Verified at 375/768/1280. Cards are compact squares side by side at
+  every width — 186px (28% of the content column) on desktop and tablet, 166px at
+  375px — with the pair centred rather than stretched. Shrinking them also pulled
+  the general composer into the first mobile viewport, which the earlier
+  half-width cards had pushed ~195px below the fold.
+- **BL-098a** The Conversation composer is anchored to the bottom (`sticky` plus
+  `mt-auto`, so it stays down even when the conversation is short) with
+  `env(safe-area-inset-bottom)` and message-area clearance: the last reply, its
+  source, and its chips all scroll clear of the bar. The focused edge picks up the
+  feature-mode colour; the field itself stays neutral.
 - **BL-099** Regression held: 18/18 live evals, Source@5 5/5, DEMO-01 pass, cost
   budget unchanged. 398 tests.
 
